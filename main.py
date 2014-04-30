@@ -16,7 +16,7 @@ __status__ = "Development"
 
 import bank
 import controller
-import time
+import timer
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
     Runs the simulation with parameters set in the if-statement below.
     """
 
-    clock = time.TimeStepper(STEPSIZE)
+    clock = timer.TimeStepper(STEPSIZE)
 
 if __name__ == '__main__':
     STEPSIZE = 1

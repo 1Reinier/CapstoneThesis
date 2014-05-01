@@ -12,7 +12,7 @@ class BalanceSheet(object):
 
     def assets(self):
         '''
-        Returns an int or float of all asset.
+        Returns an int or float of all assets.
         '''
         return sum(self.interbank_loans.values()) + sum(self.consumer_loans.values())
 

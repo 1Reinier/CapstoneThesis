@@ -7,14 +7,14 @@ fulfillment of the Capstone thesis project of the Amsterdam University College, 
 """
 
 __author__ = "Reinier Maat"
-__copyright__ = "Copyright 2014, AUC Capstone Project Reinier Maat"
+__copyright__ = "Copyright (c) 2014, AUC Capstone Project Reinier Maat"
 __license__ = "MIT"
 __version__ = "0.1"
 __email__ = "reinier.maat@student.auc.nl"
 __status__ = "Development"
 
 
-import bank
+import data_collector
 import controller
 import timer
 
@@ -23,7 +23,6 @@ def main():
     """
     Runs the simulation with parameters set in the if-statement below.
     """
-
     clock = timer.TimeStepper(STEPSIZE)
 
 if __name__ == '__main__':

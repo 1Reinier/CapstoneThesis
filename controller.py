@@ -7,11 +7,22 @@ class Controller(object):
     """
     def __init__(self):
         self.registry = []  # contains all bank IDs
+        self.network = []   # placeholder for network
 
     def create_network(self, number_of_banks, network_style):
         """
+        Returns void.
         Creates a network of banks with a chosen amount, and a style parameter (dict), containing a valid NetworkX
         function name as key (such as nx.barabasi_albert_graph), and the required parameter as value.
 
         """
-        network_style[0](number_of_banks)
+        self.network = network_style[0](number_of_banks)
+
+    def start(self, stop_before):
+        '''
+        Returns void.
+        Starts simulation with given parameter, until no changes in variables of interest occur.
+        stop_before is a parameter that sets an utlitmate boundary on the simulation, in case
+        variables of interest do not reach a steady state.
+        '''
+        pass

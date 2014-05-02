@@ -13,17 +13,16 @@ __version__ = "0.1"
 __email__ = "reinier.maat@student.auc.nl"
 __status__ = "Development"
 
-
-import data_collector
-import controller
-import timer
+from controller import Controller
+from timer import TimeStepper
 
 
 def main():
     """
     Runs the simulation with parameters set in the if-statement below.
     """
-    clock = timer.TimeStepper(STEPSIZE)
+    clock = TimeStepper(STEPSIZE)
+    simulation = Controller(NUMBEROFBANKS)
 
 if __name__ == '__main__':
     STEPSIZE = 1

@@ -1,21 +1,24 @@
 import networkx as nx
+from bank import Bank
 
 
 class Controller(object):
     """
     Creates and keeps track of banks, and the underlying network.
     """
-    def __init__(self):
+    def __init__(self, number_of_banks):
         self.banks = []    # contains all bank objects
         self.network = []  # placeholder for network
+        self.create_banks(number_of_banks)
         
     def create_banks(self, number_of_banks):
         """
         Returns void.
-        Updates self.banks
+        Updates self.banks.
         """
-        
-        pass
+        for n in range(1, number_of_banks):
+            bank = Bank()
+            self.banks.append(bank)
 
     def build_network(self, number_of_banks, network_style):
         """

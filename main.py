@@ -15,17 +15,23 @@ __status__ = "Development"
 
 from controller import Controller
 from timer import TimeStepper
+from data_collector import DataCollector
+from UI import Interface
 
 def main():
     """
     Runs the simulation with parameters set in the if-statement below.
-    :rtype: bool
+    :rtype: None
     """
     clock = TimeStepper(STEPSIZE)
-    simulation = Controller(NUMBEROFBANKS)
-    return True
+    simulation = Controller(NUMBEROFBANKS, POWERLAWPARAMETER)
+    data = DataCollector(DATASOURCE)
+    plot = Interface()
+    print('Done.')
 
 if __name__ == '__main__':
     STEPSIZE = 1
     NUMBEROFBANKS = 30
+    POWERLAWPARAMETER = 3
+    DATASOURCE = 'path/to/data.csv'
     main()

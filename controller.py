@@ -6,10 +6,11 @@ class Controller(object):
     """
     Creates and keeps track of banks, and the underlying network.
     """
-    def __init__(self, number_of_banks):
+    def __init__(self, number_of_banks, power_law_parameter):
         self.banks = []    # contains all bank objects
         self.network = []  # placeholder for network
         self.create_banks(number_of_banks)
+        self.parameter = power_law_parameter
         
     def create_banks(self, number_of_banks):
         """

@@ -30,7 +30,7 @@ class Bank(object):
         """
         Returns boolean that is true when liabilities surpass assets. Otherwise it is false.
         """
-        if self.balance.liabilities() > self.balance.assets():
+        if self.balance.equity < 0:
             return True
         else:
             return False

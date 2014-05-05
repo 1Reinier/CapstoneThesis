@@ -16,7 +16,6 @@ __status__ = "Development"
 from controller import Controller
 from timer import TimeStepper
 
-
 def main():
     """
     Runs the simulation with parameters set in the if-statement below.

@@ -20,14 +20,13 @@ class Controller(object):
             bank = Bank()
             self.banks.append(bank)
 
-    def build_network(self, number_of_banks, network_style):
+    def build_network(self, number_of_banks):
         """
         Returns void.
-        Creates a network of banks with a chosen amount, and a style parameter (dict), containing a valid NetworkX
-        function name as key (such as nx.barabasi_albert_graph), and the required parameter as value.
+        Creates a network of banks with a chosen amount.
 
         """
-        self.network = network_style[0](number_of_banks)
+        self.network = nx.generators.random_graphs.barabasi_albert_graph(number_of_banks, 3)
 
     def start(self, stop_before):
         """

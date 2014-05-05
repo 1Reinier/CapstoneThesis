@@ -19,9 +19,11 @@ from timer import TimeStepper
 def main():
     """
     Runs the simulation with parameters set in the if-statement below.
+    :rtype: bool
     """
     clock = TimeStepper(STEPSIZE)
     simulation = Controller(NUMBEROFBANKS)
+    return True
 
 if __name__ == '__main__':
     STEPSIZE = 1

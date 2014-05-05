@@ -14,12 +14,14 @@ class BalanceSheet(object):
 
     def assets(self):
         """
-        Returns an int or float of all assets.
+        Returns a float of all assets.
+        :rtype: float
         """
         return sum(self.interbank_loans.values()) + sum(self.consumer_loans.values()) + self.cash
 
     def liabilities(self):
         """
-        Returns an int or float of all liabilities.
+        Returns a float of all liabilities.
+        :rtype: float
         """
         return self.deposits + sum(self.interbank_borrowing.values()) + self.equity

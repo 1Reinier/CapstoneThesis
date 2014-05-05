@@ -13,8 +13,8 @@ class Controller(object):
         
     def create_banks(self, number_of_banks):
         """
-        Returns void.
         Updates self.banks.
+        :rtype: None
         """
         for n in range(1, number_of_banks):
             bank = Bank()
@@ -22,17 +22,17 @@ class Controller(object):
 
     def build_network(self, number_of_banks):
         """
-        Returns void.
         Creates a network of banks with a chosen amount.
+        :rtype: None
 
         """
         self.network = nx.generators.random_graphs.barabasi_albert_graph(number_of_banks, 3)
 
     def start(self, stop_before):
         """
-        Returns void.
         Starts simulation with given parameter, until no changes in variables of interest occur.
         stop_before is a parameter that sets an ultimate boundary on the simulation, in case
         variables of interest do not reach a steady state.
+        :rtype: None
         """
         pass

@@ -32,7 +32,7 @@ def main():
 
 if __name__ == '__main__':
     STEPSIZE = 1
-    NUMBEROFBANKS = 30
+    NUMBEROFBANKS = 6480  # As in a paper by Goddard (2014) on the size distribution of the US banking market.
     POWERLAWPARAMETER = 3
     DATAFILE = 'path/to/data.csv'
     main()

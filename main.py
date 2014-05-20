@@ -14,16 +14,19 @@ __version__ = "0.1"
 __email__ = "reinier.maat@student.auc.nl"
 __status__ = "Development"
 
+import random
 from controller import Controller
 from timer import TimeStepper
 from data_collector import DataCollector
 from UI import Interface
+from statistics import Statistics
 
 def main():
     """
     Runs the simulation with parameters set in the if-statement below.
     :rtype: None
     """
+    random.seed(RANDOM_SEED)
     clock = TimeStepper(STEPSIZE)
     simulation = Controller(NUMBEROFBANKS, POWERLAWPARAMETER)
     data = DataCollector(DATAFILE)
@@ -34,5 +37,6 @@ if __name__ == '__main__':
     STEPSIZE = 1
     NUMBEROFBANKS = 6480  # As in a paper by Goddard (2014) on the size distribution of the US banking market.
     POWERLAWPARAMETER = 3
+    RANDOM_SEED = 1
     DATAFILE = 'path/to/data.csv'
     main()

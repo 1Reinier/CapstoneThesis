@@ -11,12 +11,12 @@ class BalanceSheet(object):
         self.liabilities = self.assets
         # Assets
         self.interbank_loans = dict()
-        self.consumer_loans_fraction = 0
-        self.cash_fraction = 0
+        self.consumer_loans_fraction = 0.2
+        self.cash_fraction = 0.2
         # Liabilities
-        self.deposits_fraction = 0
+        self.deposits_fraction = 0.2
         self.interbank_borrowing = dict()
-        self.equity_fraction = 0
+        self.equity_fraction = 0.2
 
     @property
     def consumer_loans(self):

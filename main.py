@@ -28,12 +28,7 @@ def main():
     """
     random.seed(RANDOM_SEED)
     clock = TimeStepper(STEP_SIZE)
-    simulation = Controller(NUMBER_OF_BANKS,
-                            POWERLAW_PARAMETER,
-                            PARETO_SCALE,
-                            PARETO_SHAPE,
-                            LOGNORMAL_MEAN,
-                            LOGNOMRAL_STDEV)
+    simulation = Controller()
     data = DataCollector(DATA_FILE)
     plot = Interface()
     print('Done.')

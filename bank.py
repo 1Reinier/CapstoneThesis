@@ -26,13 +26,23 @@ class Bank(object):
         """
         pass
 
+    def fail(self):
+        """
+        Fails the bank object. Its equity is set to 0, if it's not already so.
+        Outstanding loans are redeemed.
+        """
+        if self.balance.equity != 0:
+            self.balance.equity = 0
+        # redeem outstanding
+        pass
+
     @property
     def is_broke(self):
         """
         Returns boolean that is true when liabilities surpass assets. Otherwise it is false.
         :rtype : bool
         """
-        if self.balance.equity < 0:
+        if self.balance.equity <= 0:
             return True
         else:
             return False

@@ -7,6 +7,7 @@ fulfillment of the Capstone thesis project of the Amsterdam University College, 
 """
 
 __author__ = "Reinier Maat"
+__date__ = "May 13, 2014"
 __copyright__ = "Copyright (c) 2014, AUC Capstone Project Reinier Maat"
 __license__ = "MIT"
 __version__ = "0.1"
@@ -25,7 +26,7 @@ def main():
     """
     clock = TimeStepper(STEPSIZE)
     simulation = Controller(NUMBEROFBANKS, POWERLAWPARAMETER)
-    data = DataCollector(DATASOURCE)
+    data = DataCollector(DATAFILE)
     plot = Interface()
     print('Done.')
 
@@ -33,5 +34,5 @@ if __name__ == '__main__':
     STEPSIZE = 1
     NUMBEROFBANKS = 30
     POWERLAWPARAMETER = 3
-    DATASOURCE = 'path/to/data.csv'
+    DATAFILE = 'path/to/data.csv'
     main()

@@ -1,4 +1,5 @@
 import networkx as nx
+import weakref
 from bank import Bank
 
 
@@ -7,19 +8,22 @@ class Controller(object):
     Creates and keeps track of banks, and the underlying network.
     """
     def __init__(self, number_of_banks, power_law_parameter):
-        self.banks = []    # contains all bank objects
+        self.banks = [] # contains all bank objects
+        self.bank_to_id = weakref.WeakValueDictionary()  # reference map to all banks
         self.network = []  # placeholder for network
         self.create_banks(number_of_banks)
         self.parameter = power_law_parameter
         
     def create_banks(self, number_of_banks):
         """
-        Updates self.banks.
+        Creates bank objects, stores them in self.banks, and registers them in a WeakRefDict.
         :rtype: None
         """
         for n in range(1, number_of_banks):
-            bank = Bank()
+            bank_size = 0
+            bank = Bank(bank_size)
             self.banks.append(bank)
+            self.bank_to_id[id(bank)] = bank
 
     def build_network(self, number_of_banks):
         """

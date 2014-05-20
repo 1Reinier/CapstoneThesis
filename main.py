@@ -19,24 +19,24 @@ from controller import Controller
 from timer import TimeStepper
 from data_collector import DataCollector
 from UI import Interface
-from statistics import Statistics
+from settings import *
 
 def main():
     """
-    Runs the simulation with parameters set in the if-statement below.
+    Runs the simulation with parameters set settings.py
     :rtype: None
     """
     random.seed(RANDOM_SEED)
-    clock = TimeStepper(STEPSIZE)
-    simulation = Controller(NUMBEROFBANKS, POWERLAWPARAMETER)
-    data = DataCollector(DATAFILE)
+    clock = TimeStepper(STEP_SIZE)
+    simulation = Controller(NUMBER_OF_BANKS,
+                            POWERLAW_PARAMETER,
+                            PARETO_SCALE,
+                            PARETO_SHAPE,
+                            LOGNORMAL_MEAN,
+                            LOGNOMRAL_STDEV)
+    data = DataCollector(DATA_FILE)
     plot = Interface()
     print('Done.')
 
 if __name__ == '__main__':
-    STEPSIZE = 1
-    NUMBEROFBANKS = 6480  # As in a paper by Goddard (2014) on the size distribution of the US banking market.
-    POWERLAWPARAMETER = 3
-    RANDOM_SEED = 1
-    DATAFILE = 'path/to/data.csv'
     main()

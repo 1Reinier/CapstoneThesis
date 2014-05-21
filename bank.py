@@ -11,7 +11,7 @@ class Bank(object):
     bank_size specifies the balance sheet size of the bank in dollars.
     """
     def __init__(self, bank_size):
-        self.bank_id = id(self)  # unique ID for each bank
+        self.bank_id = id(self)  # unique id for each bank object (= memory address)
         self.balance = BalanceSheet(bank_size)
 
     def fail(self):

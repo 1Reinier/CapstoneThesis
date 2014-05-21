@@ -5,7 +5,7 @@ Implements balance sheet class.
 
 class BalanceSheet(object):
     """
-    Implements the balance sheet of a bank.
+    Implements the balance sheet of a bank as in [2], according to empirical data from [1] and [3].
     """
     def __init__(self, sheet_size):
         """

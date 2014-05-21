@@ -3,7 +3,6 @@ Contains tests for the bank network simulation.
 """
 
 
-
 def main():
     # tests
     pass

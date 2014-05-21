@@ -10,34 +10,37 @@ class Controller(object):
     Creates and keeps track of banks, and the underlying network.
     """
     def __init__(self):
-        self.banks = [] # contains all bank objects
-        self.bank_to_id = weakref.WeakValueDictionary()  # reference map to all banks
-        self.network = []  # placeholder for network
-        self.create_banks(NUMBER_OF_BANKS_LOGNORMAL, NUMBER_OF_BANKS_PARETO)
+        self.banks = []  # contains all bank objects
+        self.bank_to_id = weakref.WeakValueDictionary()  # reference map of id's to all banks
+        self.network = []
+        self.create_banks()
+        self.build_network()
         
-    def create_banks(self, number_of_banks_lognormal, number_of_banks_pareto):
+    def create_banks(self):
         """
-        Creates bank objects, stores them in self.banks, and registers them in a WeakRefDict.
+        Creates bank objects, stores them in self.banks, and registers them in a self.bank_to_id
         :rtype: None
         """
-        for n in range(0, number_of_banks_lognormal):
+        for n in range(0, NUMBER_OF_BANKS_LOGNORMAL):
             bank_size = Statistics.generate_lognormal_number(LOGNORMAL_MEAN, LOGNOMRAL_STDEV)
             bank = Bank(bank_size)
             self.banks.append(bank)
             self.bank_to_id[id(bank)] = bank
-        for n in range(0, number_of_banks_pareto):
+
+        for n in range(0, NUMBER_OF_BANKS_PARETO):
             bank_size = Statistics.generate_pareto_number(PARETO_SCALE, PARETO_SHAPE)
             bank = Bank(bank_size)
             self.banks.append(bank)
             self.bank_to_id[id(bank)] = bank
 
-    def build_network(self, number_of_banks):
+    def build_network(self):
         """
         Creates a network of banks with a chosen amount.
         :rtype: None
 
         """
-        self.network = nx.generators.random_graphs.barabasi_albert_graph(number_of_banks, 3)
+        # self.network = nx.generators.random_graphs.barabasi_albert_graph(NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO, 3)
+        pass
 
     def start(self, stop_before):
         """

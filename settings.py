@@ -13,8 +13,8 @@ LOGNORMAL_MEAN = 11.910
 LOGNOMRAL_STDEV = 1.078
 
 # -- BANK NETWORK --
-NUMBER_OF_BANKS_LOGNORMAL = 6300  # As in the 2014 paper by Goddard on the asset...
-NUMBER_OF_BANKS_PARETO = 180      # ...size distribution of the US banking market. [1]
+NUMBER_OF_BANKS_LOGNORMAL = 6300  # As in the 2014 paper by Goddard on the asset size distribution of the
+NUMBER_OF_BANKS_PARETO = 180      # US banking market. [1] +/- 180 banks control 85% of asset size.
 POWERLAW_PARAMETER = 3
 
 # -- BALANCE SHEET --

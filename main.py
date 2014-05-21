@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #encoding: UTF-8
 
-"""
+"""Main.py
 This project is an agent-based simulation of interbank lending, to asses systemic risk. It is created in partial
 fulfillment of the Capstone thesis project of the Amsterdam University College, towards the Bachelor of Science degree.
+main.py is the interface used to run the simulation.
 """
 
 __author__ = "Reinier Maat"

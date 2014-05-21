@@ -1,3 +1,7 @@
+"""Settings.py
+Sets all parameters and constants used in the simulation.
+"""
+
 # -- TIME --
 STEP_SIZE = 1
 

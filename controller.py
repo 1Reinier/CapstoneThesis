@@ -1,3 +1,7 @@
+"""Controller.py
+Contains simulation controller class, and inherent simulation logic.
+"""
+
 import networkx as nx
 import weakref
 from statistics import Statistics

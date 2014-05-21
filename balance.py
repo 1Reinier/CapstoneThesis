@@ -1,3 +1,8 @@
+"""Balance.py
+Implements balance sheet class.
+"""
+
+
 class BalanceSheet(object):
     """
     Implements the balance sheet of a bank.

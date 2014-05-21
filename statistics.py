@@ -1,3 +1,7 @@
+"""Statistics.py
+Contains class of probabilistic functions used for bank and balance sheet generation.
+"""
+
 import random
 
 class Statistics(object):

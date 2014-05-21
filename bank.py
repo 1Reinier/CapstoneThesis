@@ -1,3 +1,7 @@
+"""Bank.py
+Defines the bank class.
+"""
+
 from balance import BalanceSheet
 
 

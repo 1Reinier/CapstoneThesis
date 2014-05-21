@@ -1,3 +1,7 @@
+"""Timer.py
+Defines time-keeping class.
+"""
+
 class TimeStepper(object):
     """
     Controls time.

@@ -1,3 +1,7 @@
+"""UI.py
+Provides UI class to implement graphs and graphical output of data.
+"""
+
 class Interface(object):
     """
     Creates visual representation of the data.

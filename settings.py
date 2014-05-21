@@ -17,6 +17,12 @@ NUMBER_OF_BANKS_LOGNORMAL = 6300  # As in the 2014 paper by Goddard on the asset
 NUMBER_OF_BANKS_PARETO = 180      # ...size distribution of the US banking market. [1]
 POWERLAW_PARAMETER = 3
 
+# -- BALANCE SHEET --
+DEFAULT_CONSUMER_LOANS_FRACTION = 0.2
+DEFAULT_CASH_FRACTION = 0.07
+DEFAULT_DEPOSITS_FRACTION = 0.70
+DEFAULT_EQUITY_FRACTION = 0.075
+
 # -- DATA --
 DATA_FILE = 'path/to/data.csv'
 

@@ -19,6 +19,7 @@ class Controller(object):
         self.network = []
         self.create_banks()
         self.build_network()
+        self.test()
         
     def create_banks(self):
         """
@@ -54,3 +55,8 @@ class Controller(object):
         :rtype: None
         """
         pass
+
+    def test(self):
+        assetlist = []
+        for bank in self.banks:
+            assetlist.append(bank.balance.assets)

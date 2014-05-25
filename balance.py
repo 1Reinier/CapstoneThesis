@@ -25,7 +25,7 @@ class BalanceSheet(object):
         self.equity_fraction = DEFAULT_EQUITY_FRACTION
 
     @property
-    def interbank_loans_amount(self):
+    def interbank_lending_amount(self):
         return self.assets * (1 - self.cash_fraction - self.consumer_loans_fraction)
 
     @property

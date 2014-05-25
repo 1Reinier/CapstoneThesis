@@ -19,7 +19,6 @@ class Controller(object):
         self.network = []
         self.create_banks()
         self.build_network()
-        self.test()
         
     def create_banks(self):
         """
@@ -57,5 +56,9 @@ class Controller(object):
         pass
 
     def test(self):
+        """
+        Prints asset size for all banks.
+        :rtype: none
+        """
         for bank in self.banks:
             print bank.balance.assets

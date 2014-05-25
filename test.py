@@ -2,9 +2,12 @@
 Contains tests for the bank network simulation.
 """
 
+from main import *
+
 
 def main():
-    # tests
+    simulation = Controller()
+    simulation.test()  # prints banks' asset size, to export for statistical analysis | PASSED
     pass
 
 if __name__ == "__main__":

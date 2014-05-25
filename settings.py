@@ -32,7 +32,7 @@ DATA_FILE = 'path/to/data.csv'
 # As mentioned in comments and docstrings:
 #
 # [1] J. Goddard, H. Liu, D. Mckillop, and J. O. S. Wilson, “The Size Distribution of US Banks and Credit Unions,”
-#       Int. J. Econ. Bus., vol. 21, no. 1, pp. 139–156, Jan. 2014.
+#        Int. J. Econ. Bus., vol. 21, no. 1, pp. 139–156, Jan. 2014.
 #
 # [2] A. Krause and S. Giansante, “Interbank lending and the spread of bank failures: A network model of systemic risk,”
 #        J. Econ. Behav. Organ., vol. 83, no. 3, pp. 583–608, 2012.

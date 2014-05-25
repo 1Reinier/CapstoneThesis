@@ -25,6 +25,7 @@ from data_collector import DataCollector
 from UI import Interface
 from settings import *
 
+
 def main():
     """
     Runs the simulation with parameters set settings.py

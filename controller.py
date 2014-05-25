@@ -57,6 +57,5 @@ class Controller(object):
         pass
 
     def test(self):
-        assetlist = []
         for bank in self.banks:
-            assetlist.append(bank.balance.assets)
+            print bank.balance.assets

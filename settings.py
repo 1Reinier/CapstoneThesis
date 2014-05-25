@@ -6,7 +6,7 @@ Sets all parameters and constants used in the simulation.
 STEP_SIZE = 1
 
 # -- STATISTICS --
-RANDOM_SEED = 1
+RANDOM_SEED = 42
 PARETO_SHAPE = 0.670
 PARETO_SCALE = 2994218
 LOGNORMAL_MEAN = 11.910

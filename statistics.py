@@ -33,3 +33,10 @@ class Statistics(object):
         Provides an interface to Python's lognormalvariate function.
         """
         return random.lognormvariate(mean, standard_deviation)
+
+    @staticmethod
+    def draw_from_powerlaw(exponent, x_min):
+        """
+        Draws a random number from a power law distribution: P(X > v) ~ v^-'exponent'.
+        """
+        return (random.random() / x_min)**(1.0 - exponent)

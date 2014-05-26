@@ -2,7 +2,10 @@
 Defines the bank class.
 """
 
+import math
 from balance import BalanceSheet
+from settings import *
+from statistics import Statistics
 
 
 class Bank(object):
@@ -13,6 +16,7 @@ class Bank(object):
     def __init__(self, bank_size):
         self.bank_id = id(self)  # unique id for each bank object (= memory address)
         self.balance = BalanceSheet(bank_size)
+        self.degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0))
 
     def fail(self):
         """
@@ -41,7 +45,7 @@ class Bank(object):
         """
         Try and borrow the amount specified from the bank specified. If granted, this is put on the balance.
         Otherwise, nothing changes.
-        :rtype : void
+        :rtype : None
         """
         pass
 
@@ -51,3 +55,10 @@ class Bank(object):
         :rtype : bool
         """
         pass
+
+    def test(self):
+        """
+        Tests the bank class.
+        :rtype : None
+        """
+        print self.bank_id, self.degree

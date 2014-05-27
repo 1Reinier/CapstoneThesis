@@ -28,6 +28,7 @@ DEFAULT_DEPOSITS_FRACTION = 0.70
 DEFAULT_EQUITY_FRACTION = 0.075
 
 # -- DATA --
+NETWOK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/'
 DATA_FILE = 'path/to/data.csv'
 
 

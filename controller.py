@@ -4,6 +4,8 @@ Contains simulation controller class, and inherent simulation logic.
 
 import weakref
 import math
+import random
+import networkx as nx
 from statistics import Statistics
 from bank import Bank
 from settings import *
@@ -79,6 +81,18 @@ class Controller(object):
             demand_per_bank.append(self.banks[borrower_index].borrowing_demand)
         return sum(demand_per_bank)
 
+    def choose_borrowers(self, degree):
+        """
+        Chooses borrowers.
+        :rtype : list
+        """
+        borrowers_indices = []  # refers to by index in Controller.banks
+        while len(borrowers_indices) != degree:
+            borrower = random.randint(0, NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO - 1)
+            if borrower not in borrowers_indices and self.banks[borrower].borrowing_demand > 0:
+                borrowers_indices.append(borrower)
+        return borrowers_indices
+
     def allocate_loans(self):
         """
         Allocates loans between banks. These form the network that holds the interbank system together.
@@ -90,12 +104,14 @@ class Controller(object):
         id_list = self.id_to_bank.keys()
         total = len(id_list)
         for bank_id in self.id_to_bank:
+            #Progress indicator:
             now = id_list.index(bank_id)
             percent = 100*(float(now)/total)
             print '{0}%'.format(percent)
+
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = bank.choose_borrowers()
+            borrowers_indices = self.choose_borrowers(bank.degree)
             try:
                 while self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                     borrowers_indices = [index + 1 for index in borrowers_indices]  # find higher demand banks
@@ -106,14 +122,14 @@ class Controller(object):
                 new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
                 addition = (old_lending_fraction - new_lending_fraction)/2
                 bank.balance.cash_fraction += addition
-                bank.balance.consumer_loan_fraction += addition
+                bank.balance.consumer_loans_fraction += addition
             # create interbank loans:
             borrowers_indices.sort()
             for borrowers_index in borrowers_indices:
                 # Lend everyone fraction in accordance with demand
                 counterparty = self.id_to_bank[id(self.banks[borrowers_index])]  # weak ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
-                                                     self.aggregate_demand(borrowers_indices))
+                                                         self.aggregate_demand(borrowers_indices))
                 bank.lend(loan_amount, counterparty)
 
     def test(self):
@@ -123,3 +139,18 @@ class Controller(object):
         """
         for bank in self.banks:
             bank.test()
+
+    def export_network_to_disk(self):
+        bank_network = nx.DiGraph()
+        for bank in self.banks:
+            bank_network.add_node(id(bank), assets=bank.balance.assets,
+                                  cash=bank.balance.cash,
+                                  consumer_loans=bank.balance.consumer_loans,
+                                  interbank_lending=bank.balance.interbank_lending_amount,
+                                  deposits=bank.balance.deposits,
+                                  interbank_borrowing=bank.balance.interbank_borrowing_amount,
+                                  equity=bank.balance.equity)
+            for counterparty in bank.balance.interbank_lending:
+                bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
+        nx.write_graphml(bank_network, NETWOK_EXPORT_PATH)
+        print 'Network exported to: ' + NETWOK_EXPORT_PATH + '.'

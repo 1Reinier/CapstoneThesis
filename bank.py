@@ -31,16 +31,6 @@ class Bank(object):
         #
         pass
 
-    def choose_borrowers(self):
-        """
-        Chooses borrowers.
-        :rtype : list
-        """
-        borrowers_indices = []  # referred to by index in Controller.banks
-        for n in xrange(0, self.degree):
-            borrowers_indices.append(random.randint(0, NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO - 1))
-        return borrowers_indices
-
     @property
     def capital_default(self):
         """
@@ -80,4 +70,4 @@ class Bank(object):
         Tests the bank class.
         :rtype : None
         """
-        print self.bank_id, self.degree, self.balance.assets, self.cash.fraction, self.balance.consumer_loans_fraction
+        print self.bank_id, self.degree, self.balance.assets, self.balance.cash_fraction, self.balance.consumer_loans_fraction

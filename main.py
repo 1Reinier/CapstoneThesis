@@ -11,10 +11,10 @@ main.py is the interface used to run the simulation.
 """
 
 __author__ = "Reinier Maat"
-__date__ = "May 25, 2014"
+__date__ = "May 28, 2014"
 __copyright__ = "Copyright (c) 2014, AUC Capstone Project Reinier Maat"
 __license__ = "MIT"
-__version__ = "0.2"
+__version__ = "0.3"
 __email__ = "reinier.maat@student.auc.nl"
 __status__ = "Development"
 

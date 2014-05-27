@@ -3,7 +3,6 @@ Defines the bank class.
 """
 
 import math
-import random
 from balance import BalanceSheet
 from settings import *
 from statistics import Statistics
@@ -63,4 +62,5 @@ class Bank(object):
         Tests the bank class.
         :rtype : None
         """
-        print self.bank_id, self.out_degree, self.balance.assets, self.balance.cash_fraction, self.balance.consumer_loans_fraction
+        print self.bank_id, self.out_degree, self.balance.assets, \
+            self.balance.cash_fraction, self.balance.consumer_loans_fraction

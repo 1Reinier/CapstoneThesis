@@ -6,6 +6,7 @@ import weakref
 import math
 import random
 import networkx as nx
+import pickle
 from statistics import Statistics
 from bank import Bank
 from settings import *
@@ -123,11 +124,9 @@ class Controller(object):
             # ------------------
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree), -1)  # self.choose_borrowers(bank.out_degree)
-            print borrowers_indices
+            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree), -1)
             if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                  # adjust balance sheet composition:
-                 borrowers_indices = [index - 1 for index in borrowers_indices]
                  old_lending_fraction = bank.lending_supply / bank.balance.assets
                  new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
                  addition = (old_lending_fraction - new_lending_fraction)/2
@@ -140,12 +139,10 @@ class Controller(object):
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, id(counterparty))
-            print bank.balance.interbank_lending
-
 
     def export_network_to_disk(self):
         """
-        Exports network and generated data to GraphML file.
+        Exports network and generated data to GraphML file and as a pickle.
         """
         bank_network = nx.DiGraph()
         for bank in self.banks:
@@ -159,7 +156,17 @@ class Controller(object):
             for counterparty in bank.balance.interbank_lending:
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
         nx.write_gexf(bank_network, NETWORK_EXPORT_PATH + 'bank_network.gexf')
+        pickle.dump(self.banks, open(NETWORK_EXPORT_PATH + 'bank_network_pickle', 'w'))
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
+
+    def import_network_from_disk(self):
+        """
+        Imports network from pickle on disk and stores it in self.banks.
+        """
+        self.banks = pickle.load(open(NETWORK_EXPORT_PATH + 'bank_network_pickle', 'r'))
+        for bank in self.banks:
+            self.id_to_bank[bank.bank_id] = bank  # update weak ref dictionary
+        print 'Import done.'
 
     def test(self):
         """

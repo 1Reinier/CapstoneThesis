@@ -17,7 +17,7 @@ class Bank(object):
     def __init__(self, bank_size):
         self.bank_id = id(self)  # unique id for each bank object (= memory address)
         self.balance = BalanceSheet(bank_size)
-        self.degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
+        self.out_degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
 
     def fail(self):
         """
@@ -70,4 +70,4 @@ class Bank(object):
         Tests the bank class.
         :rtype : None
         """
-        print self.bank_id, self.degree, self.balance.assets, self.balance.cash_fraction, self.balance.consumer_loans_fraction
+        print self.bank_id, self.out_degree, self.balance.assets, self.balance.cash_fraction, self.balance.consumer_loans_fraction

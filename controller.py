@@ -70,7 +70,7 @@ class Controller(object):
                    for degree in xrange(0, len(self.banks))]
         degrees.sort()
         for n in xrange(0, len(self.banks)):
-            self.banks[n].degree = degrees[n]
+            self.banks[n].out_degree = degrees[n]
 
     def aggregate_demand(self, borrowers_indices):
         """
@@ -112,7 +112,7 @@ class Controller(object):
 
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = self.choose_borrowers(bank.degree)
+            borrowers_indices = range(0, bank.out_degree)  # self.choose_borrowers(bank.out_degree)
             try:
                 while self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                     borrowers_indices = [index + 1 for index in borrowers_indices]  # find higher demand banks
@@ -142,6 +142,9 @@ class Controller(object):
             bank.test()
 
     def export_network_to_disk(self):
+        """
+        Exports network and generated data to GraphML file.
+        """
         bank_network = nx.DiGraph()
         for bank in self.banks:
             bank_network.add_node(id(bank), assets=bank.balance.assets,
@@ -153,5 +156,5 @@ class Controller(object):
                                   equity=bank.balance.equity)
             for counterparty in bank.balance.interbank_lending:
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
-        nx.write_graphml(bank_network, NETWOK_EXPORT_PATH)
-        print 'Network exported to: ' + NETWOK_EXPORT_PATH + '.'
+        nx.write_graphml(bank_network, NETWORK_EXPORT_PATH)
+        print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'

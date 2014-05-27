@@ -21,13 +21,13 @@ POWERLAW_EXPONENT_OUT_DEGREE = 2.11
 COMMON_RECOVERY_PARAMETER = 0.5   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
 
 # -- BALANCE SHEET --
-DEFAULT_CONSUMER_LOANS_FRACTION = 0.5
+DEFAULT_CONSUMER_LOANS_FRACTION = 0.55
 DEFAULT_CASH_FRACTION = 0.07
-DEFAULT_DEPOSITS_FRACTION = 0.70
+DEFAULT_DEPOSITS_FRACTION = 0.5
 DEFAULT_EQUITY_FRACTION = 0.075
 
 # -- DATA --
-NETWOK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/'
+NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/'
 DATA_FILE = 'path/to/data.csv'
 
 

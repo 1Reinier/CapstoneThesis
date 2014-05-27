@@ -87,21 +87,26 @@ class Controller(object):
         Loan size is determined in such a manner to ensure non-zero and non-trivial loans.
         :rtype : None
         """
+        id_list = self.id_to_bank.keys()
+        total = len(id_list)
         for bank_id in self.id_to_bank:
+            now = id_list.index(bank_id)
+            percent = 100*(float(now)/total)
+            print '{0}%'.format(percent)
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
             borrowers_indices = bank.choose_borrowers()
-            while self.aggregate_demand(borrowers_indices) < bank.lending_supply:
-                try:
+            try:
+                while self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                     borrowers_indices = [index + 1 for index in borrowers_indices]  # find higher demand banks
-                except IndexError:
-                    # adjust balance sheet composition:
-                    borrowers_indices = [index - 1 for index in borrowers_indices]  # go back to working index
-                    old_lending_fraction = bank.lending_supply / bank.balance.assets
-                    new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
-                    addition = (old_lending_fraction - new_lending_fraction)/2
-                    bank.balance.cash_fraction += addition
-                    bank.balance.consumer_loan_fraction += addition
+            except IndexError:
+                # adjust balance sheet composition:
+                borrowers_indices = [index - 1 for index in borrowers_indices]  # go back to working index
+                old_lending_fraction = bank.lending_supply / bank.balance.assets
+                new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
+                addition = (old_lending_fraction - new_lending_fraction)/2
+                bank.balance.cash_fraction += addition
+                bank.balance.consumer_loan_fraction += addition
             # create interbank loans:
             borrowers_indices.sort()
             for borrowers_index in borrowers_indices:

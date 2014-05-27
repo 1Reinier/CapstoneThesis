@@ -58,13 +58,6 @@ class Bank(object):
         supply_satisfied = sum(self.balance.interbank_lending.values())
         return self.balance.interbank_lending_amount - supply_satisfied
 
-    def lend(self, amount, counterparty):
-        """
-        Registers a loan with self and a counterparty.
-        """
-        self.balance.interbank_lending[id(counterparty)] = amount
-        counterparty.balance.interbank_borrowing[id(self)] = amount
-
     def test(self):
         """
         Tests the bank class.

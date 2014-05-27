@@ -97,6 +97,13 @@ class Controller(object):
                 borrowers_indices.append(borrower)
         return borrowers_indices
 
+    def make_loan(self, amount, party_id, counterparty_id):
+        """
+        Registers a loan with self and a counterparty.
+        """
+        self.id_to_bank[party_id].balance.interbank_lending[counterparty_id] = amount
+        self.id_to_bank[counterparty_id].balance.interbank_borrowing[party_id] = amount
+
     def allocate_loans(self):
         """
         Allocates loans between banks. These form the network that holds the interbank system together.
@@ -106,41 +113,35 @@ class Controller(object):
         :rtype : None
         """
         id_list = self.id_to_bank.keys()
-        total = len(id_list)
-        for bank_id in self.id_to_bank:
-            #Progress indicator:
+        listlength = len(id_list)
+        print 'Starting loan allocation...'
+        for bank_id in id_list:
+            # Progress indicator:
             now = id_list.index(bank_id)
-            percent = 100*(float(now)/total)
+            percent = 100 * (float(now) / listlength)
             print '{0}%'.format(percent)
-
+            # ------------------
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = range(NUMBER_OF_BANKS, NUMBER_OF_BANKS - int(bank.out_degree))  # self.choose_borrowers(bank.out_degree)
-            # if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
-            #     # adjust balance sheet composition:
-            #     borrowers_indices = [index - 1 for index in borrowers_indices]
-            #     old_lending_fraction = bank.lending_supply / bank.balance.assets
-            #     new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
-            #     addition = (old_lending_fraction - new_lending_fraction)/2
-            #     bank.balance.cash_fraction += addition
-            #     bank.balance.consumer_loans_fraction += addition
+            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree), -1)  # self.choose_borrowers(bank.out_degree)
+            print borrowers_indices
+            if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
+                 # adjust balance sheet composition:
+                 borrowers_indices = [index - 1 for index in borrowers_indices]
+                 old_lending_fraction = bank.lending_supply / bank.balance.assets
+                 new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
+                 addition = (old_lending_fraction - new_lending_fraction)/2
+                 bank.balance.cash_fraction += addition
+                 bank.balance.consumer_loans_fraction += addition
             # create interbank loans:
-            for borrowers_index in borrowers_indices:
+            for borrower_index in borrowers_indices:
                 # Lend everyone fraction in accordance with demand
-                counterparty = self.id_to_bank[id(self.banks[borrowers_index])]  # weak ref to other bank
+                counterparty = self.id_to_bank[id(self.banks[borrower_index])]  # weak ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
-                self.id_to_bank[bank_id].lend(loan_amount, counterparty)
-        for bank in self.banks:
+                self.make_loan(loan_amount, bank_id, id(counterparty))
             print bank.balance.interbank_lending
 
-    def test(self):
-        """
-        Prints asset size for all banks.
-        :rtype : None
-        """
-        for bank in self.banks:
-            bank.test()
 
     def export_network_to_disk(self):
         """
@@ -159,3 +160,11 @@ class Controller(object):
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
         nx.write_gexf(bank_network, NETWORK_EXPORT_PATH + 'bank_network.gexf')
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
+
+    def test(self):
+        """
+        Prints asset size for all banks.
+        :rtype : None
+        """
+        for bank in self.banks:
+            bank.test()

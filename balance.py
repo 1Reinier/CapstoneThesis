@@ -11,17 +11,17 @@ class BalanceSheet(object):
     def __init__(self, sheet_size):
         """
         All fractions are floats between 0 and 1.
-        Interbank loans and borrowing are dicts in real amounts, as in {counter party: amount}
+        Interbank loans and borrowing are dicts in real amounts, as in {counterparty: amount}
         """
         self.assets = sheet_size
         self.liabilities = self.assets  # by definition
         # Assets
-        self.interbank_lending = dict()
+        self.interbank_lending = {}
         self.consumer_loans_fraction = DEFAULT_CONSUMER_LOANS_FRACTION
         self.cash_fraction = DEFAULT_CASH_FRACTION
         # Liabilities
         self.deposits_fraction = DEFAULT_DEPOSITS_FRACTION
-        self.interbank_borrowing = dict()
+        self.interbank_borrowing = {}
         self.equity_fraction = DEFAULT_EQUITY_FRACTION
 
     @property

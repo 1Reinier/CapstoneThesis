@@ -68,6 +68,9 @@ class Controller(object):
         self.banks.sort(key=lambda _bank: _bank.balance.assets)
         degrees = [math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
                    for degree in xrange(0, len(self.banks))]
+        for i in range(0, len(degrees)):
+            if degrees[i] > NUMBER_OF_BANKS:
+                degrees[i] = NUMBER_OF_BANKS
         degrees.sort()
         for n in xrange(0, len(self.banks)):
             self.banks[n].out_degree = degrees[n]
@@ -77,7 +80,7 @@ class Controller(object):
         Calculates borrowing demand of borrowers referred to in the given list (references as indices of self.banks).
         :rtype: float
         """
-        demand_per_bank =[]
+        demand_per_bank = []
         for borrower_index in borrowers_indices:
             demand_per_bank.append(self.banks[borrower_index].borrowing_demand)
         return sum(demand_per_bank)
@@ -112,26 +115,24 @@ class Controller(object):
 
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = range(0, bank.out_degree)  # self.choose_borrowers(bank.out_degree)
-            try:
-                while self.aggregate_demand(borrowers_indices) < bank.lending_supply:
-                    borrowers_indices = [index + 1 for index in borrowers_indices]  # find higher demand banks
-            except IndexError:
-                # adjust balance sheet composition:
-                borrowers_indices = [index - 1 for index in borrowers_indices]  # go back to working index
-                old_lending_fraction = bank.lending_supply / bank.balance.assets
-                new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
-                addition = (old_lending_fraction - new_lending_fraction)/2
-                bank.balance.cash_fraction += addition
-                bank.balance.consumer_loans_fraction += addition
+            borrowers_indices = range(NUMBER_OF_BANKS, NUMBER_OF_BANKS - int(bank.out_degree))  # self.choose_borrowers(bank.out_degree)
+            # if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
+            #     # adjust balance sheet composition:
+            #     borrowers_indices = [index - 1 for index in borrowers_indices]
+            #     old_lending_fraction = bank.lending_supply / bank.balance.assets
+            #     new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
+            #     addition = (old_lending_fraction - new_lending_fraction)/2
+            #     bank.balance.cash_fraction += addition
+            #     bank.balance.consumer_loans_fraction += addition
             # create interbank loans:
-            borrowers_indices.sort()
             for borrowers_index in borrowers_indices:
                 # Lend everyone fraction in accordance with demand
                 counterparty = self.id_to_bank[id(self.banks[borrowers_index])]  # weak ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
-                                                         self.aggregate_demand(borrowers_indices))
-                bank.lend(loan_amount, counterparty)
+                                                     self.aggregate_demand(borrowers_indices))
+                self.id_to_bank[bank_id].lend(loan_amount, counterparty)
+        for bank in self.banks:
+            print bank.balance.interbank_lending
 
     def test(self):
         """
@@ -156,5 +157,5 @@ class Controller(object):
                                   equity=bank.balance.equity)
             for counterparty in bank.balance.interbank_lending:
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
-        nx.write_graphml(bank_network, NETWORK_EXPORT_PATH)
+        nx.write_gexf(bank_network, NETWORK_EXPORT_PATH + 'bank_network.gexf')
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'

@@ -3,6 +3,7 @@ Defines the bank class.
 """
 
 import math
+import random
 from balance import BalanceSheet
 from settings import *
 from statistics import Statistics
@@ -30,10 +31,20 @@ class Bank(object):
         #
         pass
 
-    @property
-    def is_broke(self):
+    def choose_borrowers(self):
         """
-        Returns boolean that is true when liabilities surpass assets. Otherwise it is false.
+        Chooses borrowers.
+        :rtype : list
+        """
+        borrowers_indices = []  # referred to by index in Controller.banks
+        for n in xrange(0, self.degree):
+            borrowers_indices.append(random.randint(0, NUMBER_OF_BANKS_PARETO + NUMBER_OF_BANKS_LOGNORMAL))
+        return borrowers_indices
+
+    @property
+    def capital_default(self):
+        """
+        Returns boolean that is true when equity reaches zero. Otherwise it is false.
         :rtype : bool
         """
         if self.balance.equity <= 0:
@@ -41,6 +52,7 @@ class Bank(object):
         else:
             return False
 
+    @property
     def borrowing_demand(self):
         """
         Returns the amount of money the bank still wants to borrow.
@@ -48,12 +60,20 @@ class Bank(object):
         demand_satisfied = sum(self.balance.interbank_borrowing.values())
         return self.balance.interbank_borrowing_amount - demand_satisfied
 
+    @property
     def lending_supply(self):
         """
         Returns the amount of money the bank is still willing to lend out.
         """
-        supply_satistied = sum(self.balance.interbank_lending.values())
-        return self.balance.interbank_lending_amount - supply_satistied
+        supply_satisfied = sum(self.balance.interbank_lending.values())
+        return self.balance.interbank_lending_amount - supply_satisfied
+
+    def lend(self, amount, counterparty):
+        """
+        Registers a loan with self and a counterparty.
+        """
+        self.balance.interbank_lending[id(counterparty())] = amount
+        counterparty.balance.interbank_borrowing[id(self)] = amount
 
     def test(self):
         """

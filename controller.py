@@ -11,12 +11,11 @@ from settings import *
 
 class Controller(object):
     """
-    Creates and keeps track of banks, and the underlying network.
+    Controls simulation, allocation, and the underlying network.
     """
     def __init__(self):
         self.banks = []  # contains all bank objects
-        self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks
-        self.network = []
+        self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
         self.create_banks()
         self.build_network()
         
@@ -65,18 +64,52 @@ class Controller(object):
         """
         self.banks.sort(key=lambda _bank: _bank.balance.assets)
         degrees = [math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
-                   for degree in range(0, len(self.banks))]
+                   for degree in xrange(0, len(self.banks))]
         degrees.sort()
-        for n in range(0, len(self.banks)):
+        for n in xrange(0, len(self.banks)):
             self.banks[n].degree = degrees[n]
+
+    def aggregate_demand(self, borrowers_indices):
+        """
+        Calculates borrowing demand of borrowers referred to in the given list (references as indices of self.banks).
+        :rtype: float
+        """
+        demand_per_bank =[]
+        for borrower_index in borrowers_indices:
+                demand_per_bank[borrower_index] = self.banks[borrower_index].borrowing_demand
+        return sum(demand_per_bank)
 
     def allocate_loans(self):
         """
-        Allocates loans between banks. This is the network that holds the interbank system together.
+        Allocates loans between banks. These form the network that holds the interbank system together.
+        If supply is bigger than demand of chosen banks, higher demand banks are chosen.
+        If that does not work, internal balance sheet composition is adjusted to equate supply to demand available.
+        Loan size is determined in such a manner to ensure non-zero and non-trivial loans.
+        :rtype : None
         """
-        for bank in self.banks:
-            for connection in range(0, bank.degree):
-                pass
+        for bank_id in self.id_to_bank:
+            self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
+            bank = self.id_to_bank[bank_id]                           # weak reference to bank
+            borrowers_indices = bank().choose_borrowers()
+            try:
+                while self.aggregate_demand(borrowers_indices) < bank().lending_supply:
+                    borrowers_indices = [index + 1 for index in borrowers_indices]  # find higher demand banks
+            except IndexError:
+                # adjust balance sheet composition:
+                borrowers_indices = [index - 1 for index in borrowers_indices]  # go back to working index
+                old_lending_fraction = bank().balance.lending_supply / bank().balance.assets
+                new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank().balance.assets
+                addition = (old_lending_fraction - new_lending_fraction)/2
+                bank().balance.cash_fraction += addition
+                bank().balance.consumer_loan_fraction += addition
+            # create interbank loans:
+            borrowers_indices.sort()
+            for borrowers_index in borrowers_indices:
+                # Lend everyone fraction in accordance with demand
+                counterparty = self.id_to_bank[id(self.banks[borrowers_index])]  # weak ref to other bank
+                loan_amount = bank().lending_supply * (counterparty().borrowing_demand /
+                                                       self.aggregate_demand(borrowers_indices))
+                bank().lend(loan_amount, counterparty)
 
     def test(self):
         """

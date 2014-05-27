@@ -12,6 +12,5 @@ General
 
 May 21, 2014
 ------------
-* Balance sheet fractions generators
 * Loan size determination
 * Failure algorithm

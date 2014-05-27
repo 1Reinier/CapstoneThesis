@@ -16,11 +16,11 @@ class Bank(object):
     def __init__(self, bank_size):
         self.bank_id = id(self)  # unique id for each bank object (= memory address)
         self.balance = BalanceSheet(bank_size)
-        self.degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0))
+        self.degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
 
     def fail(self):
         """
-        Fails the bank object. Triggers Its equity is set to 0, if it's not already so.
+        Fails the bank object. Its equity is set to 0, if it's not already so.
         Outstanding loans are redeemed.
         """
         if self.balance.equity != 0:
@@ -41,24 +41,23 @@ class Bank(object):
         else:
             return False
 
-    def try_borrow(self, amount, from_bank):
+    def borrowing_demand(self):
         """
-        Try and borrow the amount specified from the bank specified. If granted, this is put on the balance.
-        Otherwise, nothing changes.
-        :rtype : None
+        Returns the amount of money the bank still wants to borrow.
         """
-        pass
+        demand_satisfied = sum(self.balance.interbank_borrowing.values())
+        return self.balance.interbank_borrowing_amount - demand_satisfied
 
-    def review_loan(self, amount, to_bank):
+    def lending_supply(self):
         """
-        Specifies a function that governs whether to grant a loan or not.
-        :rtype : bool
+        Returns the amount of money the bank is still willing to lend out.
         """
-        pass
+        supply_satistied = sum(self.balance.interbank_lending.values())
+        return self.balance.interbank_lending_amount - supply_satistied
 
     def test(self):
         """
         Tests the bank class.
         :rtype : None
         """
-        print self.bank_id, self.degree
+        print self.bank_id, self.balance.assets, self.degree

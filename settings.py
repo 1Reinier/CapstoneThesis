@@ -19,6 +19,7 @@ NUMBER_OF_BANKS_LOGNORMAL = 6300  # As in the 2014 paper by Goddard on the asset
 NUMBER_OF_BANKS_PARETO = 180      # US banking market. [1] +/- 180 banks control 85% of all assets.
 POWERLAW_EXPONENT_IN_DEGREE = 2.15
 POWERLAW_EXPONENT_OUT_DEGREE = 2.11
+COMMON_RECOVERY_PARAMETER = 0.5   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
 
 # -- BALANCE SHEET --
 DEFAULT_CONSUMER_LOANS_FRACTION = 0.5
@@ -28,6 +29,7 @@ DEFAULT_EQUITY_FRACTION = 0.075
 
 # -- DATA --
 DATA_FILE = 'path/to/data.csv'
+
 
 # -- CODE_SPECIFIC REFERENCES --
 # As mentioned in comments and docstrings:

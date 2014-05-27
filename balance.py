@@ -16,7 +16,7 @@ class BalanceSheet(object):
         self.assets = sheet_size
         self.liabilities = self.assets  # by definition
         # Assets
-        self.interbank_loans = dict()
+        self.interbank_lending = dict()
         self.consumer_loans_fraction = DEFAULT_CONSUMER_LOANS_FRACTION
         self.cash_fraction = DEFAULT_CASH_FRACTION
         # Liabilities

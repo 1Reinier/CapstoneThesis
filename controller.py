@@ -20,6 +20,7 @@ class Controller(object):
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
         self.create_banks()
         self.build_network()
+        self.export_network_to_disk()
         
     def create_banks(self):
         """

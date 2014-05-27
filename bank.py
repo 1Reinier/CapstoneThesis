@@ -38,7 +38,7 @@ class Bank(object):
         """
         borrowers_indices = []  # referred to by index in Controller.banks
         for n in xrange(0, self.degree):
-            borrowers_indices.append(random.randint(0, NUMBER_OF_BANKS_PARETO + NUMBER_OF_BANKS_LOGNORMAL))
+            borrowers_indices.append(random.randint(0, NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO - 1))
         return borrowers_indices
 
     @property
@@ -72,7 +72,7 @@ class Bank(object):
         """
         Registers a loan with self and a counterparty.
         """
-        self.balance.interbank_lending[id(counterparty())] = amount
+        self.balance.interbank_lending[id(counterparty)] = amount
         counterparty.balance.interbank_borrowing[id(self)] = amount
 
     def test(self):
@@ -80,4 +80,4 @@ class Bank(object):
         Tests the bank class.
         :rtype : None
         """
-        print self.bank_id, self.balance.assets, self.degree
+        print self.bank_id, self.degree, self.balance.assets, self.cash.fraction, self.balance.consumer_loans_fraction

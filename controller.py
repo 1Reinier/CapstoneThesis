@@ -76,7 +76,7 @@ class Controller(object):
         """
         demand_per_bank =[]
         for borrower_index in borrowers_indices:
-                demand_per_bank[borrower_index] = self.banks[borrower_index].borrowing_demand
+            demand_per_bank.append(self.banks[borrower_index].borrowing_demand)
         return sum(demand_per_bank)
 
     def allocate_loans(self):
@@ -90,32 +90,31 @@ class Controller(object):
         for bank_id in self.id_to_bank:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = bank().choose_borrowers()
-            try:
-                while self.aggregate_demand(borrowers_indices) < bank().lending_supply:
+            borrowers_indices = bank.choose_borrowers()
+            while self.aggregate_demand(borrowers_indices) < bank.lending_supply:
+                try:
                     borrowers_indices = [index + 1 for index in borrowers_indices]  # find higher demand banks
-            except IndexError:
-                # adjust balance sheet composition:
-                borrowers_indices = [index - 1 for index in borrowers_indices]  # go back to working index
-                old_lending_fraction = bank().balance.lending_supply / bank().balance.assets
-                new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank().balance.assets
-                addition = (old_lending_fraction - new_lending_fraction)/2
-                bank().balance.cash_fraction += addition
-                bank().balance.consumer_loan_fraction += addition
+                except IndexError:
+                    # adjust balance sheet composition:
+                    borrowers_indices = [index - 1 for index in borrowers_indices]  # go back to working index
+                    old_lending_fraction = bank.lending_supply / bank.balance.assets
+                    new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
+                    addition = (old_lending_fraction - new_lending_fraction)/2
+                    bank.balance.cash_fraction += addition
+                    bank.balance.consumer_loan_fraction += addition
             # create interbank loans:
             borrowers_indices.sort()
             for borrowers_index in borrowers_indices:
                 # Lend everyone fraction in accordance with demand
                 counterparty = self.id_to_bank[id(self.banks[borrowers_index])]  # weak ref to other bank
-                loan_amount = bank().lending_supply * (counterparty().borrowing_demand /
-                                                       self.aggregate_demand(borrowers_indices))
-                bank().lend(loan_amount, counterparty)
+                loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
+                                                     self.aggregate_demand(borrowers_indices))
+                bank.lend(loan_amount, counterparty)
 
     def test(self):
         """
         Prints asset size for all banks.
         :rtype : None
         """
-        self.allocate_degrees()
         for bank in self.banks:
             bank.test()

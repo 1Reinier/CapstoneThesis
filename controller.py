@@ -16,12 +16,13 @@ class Controller(object):
     """
     Controls simulation, allocation, and the underlying network.
     """
-    def __init__(self):
+    def __init__(self, import_network=False):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
         #self.build_network()
         #self.export_network_to_disk(NETWORK_EXPORT_PATH)
-        self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program
+        if import_network:
+            self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program
         self.defaulted_banks = 0
         #self.trigger(self.banks[50].bank_id) # initial trigger
         #self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
@@ -149,7 +150,6 @@ class Controller(object):
             bank.in_default = True
             # keeping score:
             self.defaulted_banks += 1
-            print 'Bank {0} went bankrupt. Total: {1}'.format(bank.bank_id, self.defaulted_banks)
 
             # Workaround for bug:
             interbank_lending_backup = copy.deepcopy(bank.balance.interbank_lending)

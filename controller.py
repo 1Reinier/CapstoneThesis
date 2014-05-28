@@ -156,7 +156,14 @@ class Controller(object):
             interbank_borrowing_backup = copy.deepcopy(bank.balance.interbank_borrowing)
 
             # redeem outstanding loans:
-            money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
+            retrievable = 0
+            for counterparty_id in interbank_lending_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                if bank.balance.interbank_lending[counterparty_id] >= counterparty.balance.cash:
+                    retrievable = counterparty.balance.cash
+                else:
+                    retrievable = bank.balance.interbank_lending[counterparty_id]
+            money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + retrievable
             money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
             if money_left > 0:
                 bank.balance.cash = money_left
@@ -167,17 +174,14 @@ class Controller(object):
             # remove redeemed loans from counterparties' balance, and own balance:
             for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                loss = bank.balance.interbank_lending
-                if loss < counterparty.balance.cash:
-                    counterparty.balance.cash -= loss
-                else:
-                    counterparty.balance.cash = 0.0
+                loss = retrievable
+                counterparty.balance.cash -= loss
                 del counterparty.balance.interbank_borrowing[bank.bank_id]
                 del bank.balance.interbank_lending[counterparty_id]
 
             # default on borrowed money. If money is left after depositors pay-out, creditors are paid:
             if bank.balance.cash > 0.0:
-                return_fraction = bank.balance.cash / sum(interbank_borrowing_backup.values())  # fraction repaid
+                return_fraction = bank.balance.cash / bank.balance.current_amount_of_interbank_borrowing  # fraction repaid
                 if return_fraction > 1.0:
                     return_fraction = 1.0
                 for counterparty_id in interbank_borrowing_backup:
@@ -188,19 +192,19 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    counterparty.balance.interbank_lending[bank.bank_id] = 0.0
-                    bank.balance.interbank_borrowing[counterparty_id] = 0.0
+                    del counterparty.balance.interbank_lending[bank.bank_id]
+                    del bank.balance.interbank_borrowing[counterparty_id]
             else:
                 # default on borrowed money without money left:
                 for counterparty_id in interbank_borrowing_backup:
-                    loss = interbank_borrowing_backup[counterparty_id]
+                    loss = bank.balance.interbank_borrowing[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
                     if loss < counterparty.balance.equity:
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    counterparty.balance.interbank_lending[bank.bank_id] = 0.0
-                    bank.balance.interbank_borrowing[counterparty_id] = 0.0
+                    del counterparty.balance.interbank_lending[bank.bank_id]
+                    del bank.balance.interbank_borrowing[counterparty_id]
 
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in interbank_borrowing_backup:

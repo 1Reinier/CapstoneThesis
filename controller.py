@@ -169,6 +169,10 @@ class Controller(object):
             # redeem outstanding loans:
             money_retrieved = (COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
             money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
+            if money_left > 0:
+                bank.balance.cash = money_left
+            else:
+                bank.balance.cash = 0.0
 
             # remove redeemed loans from counterparties' balance, and own balance:
             for counterparty_id in _interbank_lending_backup:

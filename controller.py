@@ -89,7 +89,7 @@ class Controller(object):
 
     def choose_borrowers(self, degree):
         """
-        Chooses borrowers.
+        UNUSED | Chooses borrowers.
         :rtype : list
         """
         borrowers_indices = []  # refers to by index in Controller.banks
@@ -140,6 +140,41 @@ class Controller(object):
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, id(counterparty))
+
+    def go_into_default(self, bank):
+        """
+        Fails the bank object. Triggers contagion mechanism.
+        Outstanding loans are redeemed.
+        """
+        # redeem outstanding loans:
+        money_retrieved = COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans + \
+                          sum(bank.balance.interbank_lending.values())
+        money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
+        interbank_lending_backup = bank.balance.interbank_lending
+        for counterparty_id in interbank_lending_backup:
+            counterparty = self.id_to_bank[counterparty_id]
+            counterparty.balance.remove_incoming_loan(bank.bank_id)
+            del bank.balance.interbank_lending[counterparty_id]
+        if money_left > 0:
+            return_fraction = money_left / sum(bank.balance.interbank_borrowing)
+            if return_fraction > 1:
+                return_fraction = 1
+            for bank_id in bank.balance.interbank_borrowing:
+                self.id_to_bank[bank_id].balance.change_cash(return_fraction *
+                                                             bank.balance.interbank_borrowing[bank_id])
+        # default on borrowed money:
+        interbank_borrowing_backup = bank.balance.interbank_borrowing
+        for counterparty_id in interbank_borrowing_backup:
+            counterparty = self.id_to_bank[counterparty_id]
+            counterparty.balance.remove_outstanding_loan(bank.bank_id)
+            del bank.balance.interbank_borrowing[counterparty_id]
+        # trigger next defaults:
+        for counterparty in interbank_lending_backup:
+            if counterparty.balance.cash == 0:
+                self.go_into_default(counterparty)
+        for counterparty in interbank_borrowing_backup:
+            if counterparty.balance.equity == 0:
+                self.go_into_default(counterparty)
 
     def export_network_to_disk(self):
         """

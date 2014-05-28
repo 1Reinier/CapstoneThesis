@@ -18,25 +18,13 @@ class Bank(object):
         self.balance = BalanceSheet(bank_size)
         self.out_degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
 
-    def fail(self):
-        """
-        Fails the bank object. Its equity is set to 0, if it's not already so.
-        Outstanding loans are redeemed.
-        """
-        if self.balance.equity != 0:
-            self.balance.equity_fraction = 0
-        #
-        # redeem outstanding
-        #
-        pass
-
     @property
-    def capital_default(self):
+    def in_default(self):
         """
-        Returns boolean that is true when equity reaches zero. Otherwise it is false.
+        Returns boolean that is true when equity is zero. Otherwise it is false.
         :rtype : bool
         """
-        if self.balance.equity <= 0:
+        if self.balance.equity == 0:
             return True
         else:
             return False

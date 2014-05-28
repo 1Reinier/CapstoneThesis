@@ -25,7 +25,7 @@ class Bank(object):
         Returns the amount of money the bank still wants to borrow.
         """
         demand_satisfied = sum(self.balance.interbank_borrowing.values())
-        return self.balance.interbank_borrowing_amount - demand_satisfied
+        return self.balance.interbank_borrowing_amount_demanded - demand_satisfied
 
     @property
     def lending_supply(self):
@@ -33,7 +33,7 @@ class Bank(object):
         Returns the amount of money the bank is still willing to lend out.
         """
         supply_satisfied = sum(self.balance.interbank_lending.values())
-        return self.balance.interbank_lending_amount - supply_satisfied
+        return self.balance.interbank_lending_amount_spendable - supply_satisfied
 
     def test(self):
         """

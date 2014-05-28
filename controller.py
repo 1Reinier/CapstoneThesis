@@ -2,6 +2,7 @@
 Contains simulation controller class, and inherent simulation logic.
 """
 
+import copy
 import weakref
 import math
 import random
@@ -24,7 +25,8 @@ class Controller(object):
         #self.export_network_to_disk()
         self.import_network_from_disk()  # imports network created earlier by the program to save time
         self.defaulted_banks = 0
-        self.trigger(self.banks[3068].bank_id) # initial trigger
+        self.trigger(self.banks[50].bank_id) # initial trigger
+        self.export_network_to_disk()
         
     def create_banks(self):
         """
@@ -162,8 +164,8 @@ class Controller(object):
             print 'Bank {0} went bankrupt. Total: {1}'.format(bank.bank_id, self.defaulted_banks)
 
             # Workaround for bug:
-            interbank_lending_backup = bank.balance.interbank_lending.copy()
-            interbank_borrowing_backup = bank.balance.interbank_borrowing.copy()
+            interbank_lending_backup = copy.deepcopy(bank.balance.interbank_lending)
+            interbank_borrowing_backup = copy.deepcopy(bank.balance.interbank_borrowing)
 
             # redeem outstanding loans:
             money_retrieved = (COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
@@ -172,6 +174,7 @@ class Controller(object):
                 bank.balance.cash = money_left
             else:
                 bank.balance.cash = 0.0
+            bank.balance.deposits = 0.0
 
             # remove redeemed loans from counterparties' balance, and own balance:
             for counterparty_id in interbank_lending_backup:
@@ -197,8 +200,8 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    del counterparty.balance.interbank_lending[bank.bank_id]
-                    del bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty.balance.interbank_lending[bank.bank_id] = 0.0
+                    bank.balance.interbank_borrowing[counterparty_id] = 0.0
             else:
                 # default on borrowed money without money left:
                 for counterparty_id in interbank_borrowing_backup:
@@ -208,19 +211,17 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    del counterparty.balance.interbank_lending[bank.bank_id]
-                    del bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty.balance.interbank_lending[bank.bank_id] = 0.0
+                    bank.balance.interbank_borrowing[counterparty_id] = 0.0
 
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in interbank_borrowing_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.equity <= 0.0:
-                    print 'Yes'
                     self.go_into_default(counterparty_id)
             for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.cash <= 0.0:
-                    print 'Yes2'
                     self.go_into_default(counterparty_id)
 
     def export_network_to_disk(self):
@@ -232,9 +233,9 @@ class Controller(object):
             bank_network.add_node(id(bank), assets=bank.balance.assets,
                                   cash=bank.balance.cash,
                                   consumer_loans=bank.balance.consumer_loans,
-                                  interbank_lending=bank.balance.interbank_lending_amount,
+                                  interbank_lending=bank.balance.current_amount_of_interbank_lending,
                                   deposits=bank.balance.deposits,
-                                  interbank_borrowing=bank.balance.interbank_borrowing_amount,
+                                  interbank_borrowing=bank.balance.current_amount_of_interbank_borrowing,
                                   equity=bank.balance.equity)
             for counterparty in bank.balance.interbank_lending:
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
@@ -251,7 +252,7 @@ class Controller(object):
         self.banks = pickle.load(open(NETWORK_EXPORT_PATH + 'bank_network_pickle', 'r'))
         for bank in self.banks:
             self.id_to_bank[bank.bank_id] = bank  # update weak ref dictionary
-        print 'Import done.'
+        print 'Network import from disk: done.'
 
     def test(self):
         """

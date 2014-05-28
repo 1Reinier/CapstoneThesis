@@ -29,7 +29,7 @@ from settings import *
 def main():
     """
     Runs the simulation with parameters set settings.py
-    :rtype: None
+    :rtype : None
     """
     random.seed(RANDOM_SEED)
     clock = TimeStepper(STEP_SIZE)

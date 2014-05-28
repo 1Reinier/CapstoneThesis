@@ -155,6 +155,7 @@ class Controller(object):
         """
         bank = self.id_to_bank[bank_id]
         if not(bank.in_default):
+            bank.in_default = True
             # keeping score:
             self.defaulted_banks += 1
             print 'Bank {0} went bankrupt. Total: {1}'.format(bank.bank_id, self.defaulted_banks)

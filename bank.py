@@ -17,17 +17,7 @@ class Bank(object):
         self.bank_id = id(self)  # unique id for each bank object (= memory address)
         self.balance = BalanceSheet(bank_size)
         self.out_degree = math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
-
-    @property
-    def in_default(self):
-        """
-        Returns boolean that is true when equity is zero. Otherwise it is false.
-        :rtype : bool
-        """
-        if self.balance.equity <= 0:
-            return True
-        else:
-            return False
+        self.in_default = False
 
     @property
     def borrowing_demand(self):

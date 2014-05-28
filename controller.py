@@ -23,6 +23,7 @@ class Controller(object):
         #self.build_network()
         #self.export_network_to_disk()
         self.import_network_from_disk()  # imports network created earlier by the program to save time
+        self.go_into_default(self.banks[100]) # initial trigger
         
     def create_banks(self):
         """
@@ -147,6 +148,7 @@ class Controller(object):
         Outstanding loans are redeemed.
         """
         # redeem outstanding loans:
+        print 'Bank {0} went bankrupt.'.format(bank.bank_id)
         money_retrieved = COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans + \
                           sum(bank.balance.interbank_lending.values())
         money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
@@ -155,6 +157,7 @@ class Controller(object):
             counterparty = self.id_to_bank[counterparty_id]
             counterparty.balance.remove_incoming_loan(bank.bank_id)
             del bank.balance.interbank_lending[counterparty_id]
+        # if money is left, creditors are paid:
         if money_left > 0:
             return_fraction = money_left / sum(bank.balance.interbank_borrowing)
             if return_fraction > 1:

@@ -20,14 +20,23 @@ class Controller(object):
     def __init__(self):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
-        #self.create_banks()
-        #self.build_network()
-        #self.export_network_to_disk()
-        self.import_network_from_disk()  # imports network created earlier by the program to save time
+        self.build_network()
+        self.export_network_to_disk(NETWORK_EXPORT_PATH)
+        self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program to save time
         self.defaulted_banks = 0
         self.trigger(self.banks[50].bank_id) # initial trigger
-        self.export_network_to_disk()
+        self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
         
+    def build_network(self):
+        """
+        Creates the loan network between banks.
+        :rtype : None
+
+        """
+        self.create_banks()
+        self.allocate_degrees()
+        self.allocate_loans()
+
     def create_banks(self):
         """
         Creates bank objects, stores them in self.banks, and registers them in a self.bank_to_id.
@@ -47,15 +56,6 @@ class Controller(object):
             self.banks.append(bank)
             self.id_to_bank[id(bank)] = bank
 
-    def build_network(self):
-        """
-        Creates the loan network between banks.
-        :rtype : None
-
-        """
-        self.allocate_degrees()
-        self.allocate_loans()
-
     def allocate_degrees(self):
         """
         First sort banks by asset size, then match them with sorted degree list.
@@ -71,35 +71,6 @@ class Controller(object):
         degrees.sort()
         for n in xrange(0, len(self.banks)):
             self.banks[n].out_degree = degrees[n]
-
-    def aggregate_demand(self, borrowers_indices):
-        """
-        Calculates borrowing demand of borrowers referred to in the given list (references as indices of self.banks).
-        :rtype: float
-        """
-        demand_per_bank = []
-        for borrower_index in borrowers_indices:
-            demand_per_bank.append(self.banks[borrower_index].borrowing_demand)
-        return sum(demand_per_bank)
-
-    def choose_borrowers(self, degree):
-        """
-        UNUSED | Chooses borrowers.
-        :rtype : list
-        """
-        borrowers_indices = []  # refers to by index in Controller.banks
-        while len(borrowers_indices) != degree:
-            borrower = random.randint(0, NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO - 1)
-            if borrower not in borrowers_indices and self.banks[borrower].borrowing_demand > 0:
-                borrowers_indices.append(borrower)
-        return borrowers_indices
-
-    def make_loan(self, amount, party_id, counterparty_id):
-        """
-        Registers a loan with self and a counterparty.
-        """
-        self.id_to_bank[party_id].balance.interbank_lending[counterparty_id] = amount
-        self.id_to_bank[counterparty_id].balance.interbank_borrowing[party_id] = amount
 
     def allocate_loans(self):
         """
@@ -140,6 +111,24 @@ class Controller(object):
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, id(counterparty))
+
+    def aggregate_demand(self, borrowers_indices):
+        """
+        Calculates borrowing demand of borrowers referred to in the given list (references as indices of self.banks).
+        :rtype: float
+        """
+        demand_per_bank = []
+        for borrower_index in borrowers_indices:
+            demand_per_bank.append(self.banks[borrower_index].borrowing_demand)
+        return sum(demand_per_bank)
+
+    def make_loan(self, amount, party_id, counterparty_id):
+        """
+        Registers a loan with self and a counterparty.
+        """
+        self.id_to_bank[party_id].balance.interbank_lending[counterparty_id] = amount
+        self.id_to_bank[counterparty_id].balance.interbank_borrowing[party_id] = amount
+
 
     def trigger(self, bank_id):
         """
@@ -224,7 +213,7 @@ class Controller(object):
                 if counterparty.balance.cash <= 0.0:
                     self.go_into_default(counterparty_id)
 
-    def export_network_to_disk(self):
+    def export_network_to_disk(self, path):
         """
         Exports network and generated data to GraphML file and as a pickle.
         """
@@ -240,23 +229,23 @@ class Controller(object):
             for counterparty in bank.balance.interbank_lending:
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
         # save GEXF:
-        nx.write_gexf(bank_network, NETWORK_EXPORT_PATH + 'bank_network.gexf')
+        nx.write_gexf(bank_network, path + '.gexf')
         # save objects in Pickle:
-        pickle.dump(self.banks, open(NETWORK_EXPORT_PATH + 'bank_network_pickle', 'w'))
+        pickle.dump(self.banks, open(path + '.pickle', 'w'))
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
 
-    def import_network_from_disk(self):
+    def import_network_from_disk(self, path):
         """
         Imports network from pickle on disk and stores it in self.banks.
         """
-        self.banks = pickle.load(open(NETWORK_EXPORT_PATH + 'bank_network_pickle', 'r'))
+        self.banks = pickle.load(open(path + '.pickle', 'r'))
         for bank in self.banks:
             self.id_to_bank[bank.bank_id] = bank  # update weak ref dictionary
         print 'Network import from disk: done.'
 
     def test(self):
         """
-        Prints asset size for all banks.
+        Prints various bank properties.
         :rtype : None
         """
         for bank in self.banks:

@@ -28,7 +28,8 @@ DEFAULT_DEPOSITS_FRACTION = 0.5
 DEFAULT_EQUITY_FRACTION = 0.075
 
 # -- DATA --
-NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/'
+NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network'
+FAILED_NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network_failed'
 DATA_FILE = 'path/to/data.csv'
 
 

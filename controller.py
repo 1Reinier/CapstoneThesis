@@ -19,15 +19,15 @@ class Controller(object):
     def __init__(self):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
-        #self.create_banks()
-        #self.build_network()
-        #self.export_network_to_disk()
+        self.create_banks()
+        self.build_network()
+        self.export_network_to_disk()
+        #self.import_network_from_disk()  # imports network created earlier by the program to save time
         self.defaulted_banks = 0
-        self.import_network_from_disk()  # imports network created earlier by the program to save time
         lijstje = range(6000, 6100)
         for i in lijstje:
             print self.banks[i].balance.equity, self.banks[i].balance.cash
-            self.trigger(self.banks[i]) # initial trigger
+            self.trigger(self.banks[i].bank_id) # initial trigger
             print self.banks[i].balance.equity, self.banks[i].balance.cash
         
     def create_banks(self):
@@ -57,15 +57,6 @@ class Controller(object):
         """
         self.allocate_degrees()
         self.allocate_loans()
-
-    def start(self, stop_before):
-        """
-        Starts simulation with given parameter, until no changes in variables of interest occur.
-        stop_before is a parameter that sets an ultimate boundary on the simulation, in case
-        variables of interest do not reach a steady state.
-        :rtype : None
-        """
-        pass
 
     def allocate_degrees(self):
         """

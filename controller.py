@@ -22,8 +22,9 @@ class Controller(object):
         #self.create_banks()
         #self.build_network()
         #self.export_network_to_disk()
+        self.defaulted_banks = 0
         self.import_network_from_disk()  # imports network created earlier by the program to save time
-        self.go_into_default(self.banks[100]) # initial trigger
+        self.go_into_default(self.banks[6000]) # initial trigger
         
     def create_banks(self):
         """
@@ -144,40 +145,47 @@ class Controller(object):
 
     def go_into_default(self, bank):
         """
-        Fails the bank object. Triggers contagion mechanism.
-        Outstanding loans are redeemed.
+        Fails the bank object.
+        Triggers contagion mechanism.
         """
         # redeem outstanding loans:
-        print 'Bank {0} went bankrupt.'.format(bank.bank_id)
-        money_retrieved = COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans + \
-                          sum(bank.balance.interbank_lending.values())
-        money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
-        interbank_lending_backup = bank.balance.interbank_lending
-        for counterparty_id in interbank_lending_backup:
-            counterparty = self.id_to_bank[counterparty_id]
-            counterparty.balance.remove_incoming_loan(bank.bank_id)
-            del bank.balance.interbank_lending[counterparty_id]
-        # if money is left, creditors are paid:
-        if money_left > 0:
-            return_fraction = money_left / sum(bank.balance.interbank_borrowing)
-            if return_fraction > 1:
-                return_fraction = 1
-            for bank_id in bank.balance.interbank_borrowing:
-                self.id_to_bank[bank_id].balance.change_cash(return_fraction *
-                                                             bank.balance.interbank_borrowing[bank_id])
-        # default on borrowed money:
-        interbank_borrowing_backup = bank.balance.interbank_borrowing
-        for counterparty_id in interbank_borrowing_backup:
-            counterparty = self.id_to_bank[counterparty_id]
-            counterparty.balance.remove_outstanding_loan(bank.bank_id)
-            del bank.balance.interbank_borrowing[counterparty_id]
-        # trigger next defaults:
-        for counterparty in interbank_lending_backup:
-            if counterparty.balance.cash == 0:
-                self.go_into_default(counterparty)
-        for counterparty in interbank_borrowing_backup:
-            if counterparty.balance.equity == 0:
-                self.go_into_default(counterparty)
+        if not(bank.in_default):
+            bank.balance.equity = 0
+            self.defaulted_banks += 1
+            print 'Bank {0} went bankrupt. Total: {1}'.format(bank.bank_id, self.defaulted_banks)
+            money_retrieved = COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans + \
+                              sum(bank.balance.interbank_lending.values())
+            money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
+            interbank_lending_backup = bank.balance.interbank_lending
+            _interbank_lending_backup = interbank_lending_backup.keys()
+            for counterparty_id in _interbank_lending_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                counterparty.balance.remove_incoming_loan(bank.bank_id)
+                del bank.balance.interbank_lending[counterparty_id]
+            # if money is left, creditors are paid:
+            if money_left > 0:
+                return_fraction = money_left / sum(bank.balance.interbank_borrowing)
+                if return_fraction > 1:
+                    return_fraction = 1
+                for bank_id in bank.balance.interbank_borrowing:
+                    self.id_to_bank[bank_id].balance.change_cash(return_fraction *
+                                                                 bank.balance.interbank_borrowing[bank_id])
+            # default on borrowed money:
+            interbank_borrowing_backup = bank.balance.interbank_borrowing
+            _interbank_borrowing_backup = interbank_borrowing_backup.keys()
+            for counterparty_id in _interbank_borrowing_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                counterparty.balance.remove_outstanding_loan(bank.bank_id)
+                del bank.balance.interbank_borrowing[counterparty_id]
+            # trigger next defaults:
+            for counterparty_id in _interbank_lending_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                if counterparty.balance.cash <= 0:
+                    self.go_into_default(counterparty)
+            for counterparty_id in _interbank_borrowing_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                if counterparty.balance.equity <= 0:
+                    self.go_into_default(counterparty)
 
     def export_network_to_disk(self):
         """

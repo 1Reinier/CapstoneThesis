@@ -34,7 +34,6 @@ class BalanceSheet(object):
         self.equity_fraction = self.equity / self.assets
 
     def change_equity(self, by_amount):
-        self.cash += by_amount
         self.equity += by_amount
         self.assets += by_amount
         self.cash_fraction = self.cash / self.assets
@@ -44,7 +43,6 @@ class BalanceSheet(object):
         old_equity = self.equity
         self.equity = to_amount
         difference = to_amount - old_equity
-        self.cash += difference
         self.assets += difference
         self.cash_fraction = self.cash / self.assets
         self.equity_fraction = self.equity / self.assets
@@ -73,18 +71,18 @@ class BalanceSheet(object):
     def interbank_borrowing_amount(self):
         return self.assets * (1 - self.deposits_fraction - self.equity_fraction)
 
-    @property
-    def consumer_loans(self):
-        return self.consumer_loans
-
-    @property
-    def cash(self):
-        return self.cash
-
-    @property
-    def deposits(self):
-        return self.deposits
-
-    @property
-    def equity(self):
-        return self.equity
+    # @property
+    # def consumer_loans(self):
+    #     return self.consumer_loans
+    #
+    # @property
+    # def cash(self):
+    #     return self.cash
+    #
+    # @property
+    # def deposits(self):
+    #     return self.deposits
+    #
+    # @property
+    # def equity(self):
+    #     return self.equity

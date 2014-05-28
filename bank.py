@@ -24,7 +24,7 @@ class Bank(object):
         Returns boolean that is true when equity is zero. Otherwise it is false.
         :rtype : bool
         """
-        if self.balance.equity == 0:
+        if self.balance.equity <= 0:
             return True
         else:
             return False

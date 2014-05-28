@@ -18,7 +18,7 @@ LOGNOMRAL_STDEV = 1.078  # [1]
 NUMBER_OF_BANKS_LOGNORMAL = 6300  # As in the 2014 paper by Goddard on the asset size distribution of the
 NUMBER_OF_BANKS_PARETO = 180      # US banking market. [1] +/- 180 banks control 85% of all assets.
 POWERLAW_EXPONENT_OUT_DEGREE = 2.11
-COMMON_RECOVERY_PARAMETER = 0.5   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
+COMMON_RECOVERY_PARAMETER = 0.1   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
 NUMBER_OF_BANKS = NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO
 
 # -- BALANCE SHEET --

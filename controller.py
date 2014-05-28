@@ -181,9 +181,9 @@ class Controller(object):
                 del counterparty.balance.interbank_borrowing[bank.bank_id]
                 del bank.balance.interbank_lending[counterparty_id]
 
-            # if money is left, creditors are paid:
+            # default on borrowed money. If money is left after depositors pay-out, creditors are paid:
             if money_left > 0.0:
-                return_fraction = money_left / sum(bank.balance.interbank_borrowing.values())  # fraction repaid
+                return_fraction = money_left / sum(interbank_borrowing_backup.values())  # fraction repaid
                 if return_fraction > 1.0:
                     return_fraction = 1.0
                 for counterparty_id in _interbank_borrowing_backup:
@@ -197,9 +197,9 @@ class Controller(object):
                     del counterparty.balance.interbank_lending[bank.bank_id]
                     del bank.balance.interbank_borrowing[counterparty_id]
             else:
-                # default on borrowed money:
+                # default on borrowed money without money left:
                 for counterparty_id in _interbank_borrowing_backup:
-                    loss = bank.balance.interbank_borrowing[counterparty_id]
+                    loss = interbank_borrowing_backup[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
                     if loss < counterparty.balance.equity:
                         counterparty.balance.equity -= loss
@@ -212,11 +212,11 @@ class Controller(object):
             for counterparty_id in _interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.cash <= 0.0:
-                    self.go_into_default(counterparty)
+                    self.go_into_default(counterparty_id)
             for counterparty_id in _interbank_borrowing_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.equity <= 0.0:
-                    self.go_into_default(counterparty)
+                    self.go_into_default(counterparty_id)
 
     def export_network_to_disk(self):
         """

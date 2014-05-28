@@ -19,10 +19,10 @@ class Controller(object):
     def __init__(self):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
-        self.create_banks()
-        self.build_network()
-        self.export_network_to_disk()
-        #self.import_network_from_disk()  # imports network created earlier by the program to save time
+        #self.create_banks()
+        #self.build_network()
+        #self.export_network_to_disk()
+        self.import_network_from_disk()  # imports network created earlier by the program to save time
         self.defaulted_banks = 0
         lijstje = range(6000, 6100)
         for i in lijstje:
@@ -144,7 +144,7 @@ class Controller(object):
         """
         bank = self.id_to_bank[bank_id]
         loss = bank.balance.equity
-        bank.balance.equity = 0
+        bank.balance.equity = 0.0
         bank.balance.cash -= loss
         self.go_into_default(bank_id)
 
@@ -176,23 +176,23 @@ class Controller(object):
                 if loss < counterparty.balance.cash:
                     counterparty.balance.cash -= loss
                 else:
-                    counterparty.balance.cash = 0
+                    counterparty.balance.cash = 0.0
                 del counterparty.balance.interbank_borrowing[bank.bank_id]
                 del bank.balance.interbank_lending[counterparty_id]
 
             # if money is left, creditors are paid:
-            if money_left > 0:
+            if money_left > 0.0:
                 return_fraction = money_left / sum(bank.balance.interbank_borrowing.values())  # fraction repaid
-                if return_fraction > 1:
-                    return_fraction = 1
+                if return_fraction > 1.0:
+                    return_fraction = 1.0
                 for counterparty_id in _interbank_borrowing_backup:
                     loan_size = bank.balance.interbank_borrowing[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
-                    loss = (1 - return_fraction) * loan_size
+                    loss = (1.0 - return_fraction) * loan_size
                     if loss < counterparty.balance.equity:
                         counterparty.balance.equity -= loss
                     else:
-                        counterparty.balance.equity = 0
+                        counterparty.balance.equity = 0.0
                     del counterparty.balance.interbank_lending[bank.bank_id]
                     del bank.balance.interbank_borrowing[counterparty_id]
             else:
@@ -203,18 +203,18 @@ class Controller(object):
                     if loss < counterparty.balance.equity:
                         counterparty.balance.equity -= loss
                     else:
-                        counterparty.balance.equity = 0
+                        counterparty.balance.equity = 0.0
                     del counterparty.balance.interbank_lending[bank.bank_id]
                     del bank.balance.interbank_borrowing[counterparty_id]
 
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in _interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.cash <= 0:
+                if counterparty.balance.cash <= 0.0:
                     self.go_into_default(counterparty)
             for counterparty_id in _interbank_borrowing_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.equity <= 0:
+                if counterparty.balance.equity <= 0.0:
                     self.go_into_default(counterparty)
 
     def export_network_to_disk(self):

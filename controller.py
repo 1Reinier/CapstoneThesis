@@ -5,7 +5,6 @@ Contains simulation controller class, and inherent simulation logic.
 import copy
 import weakref
 import math
-import random
 import networkx as nx
 import pickle
 from statistics import Statistics

@@ -31,9 +31,9 @@ def main():
     :rtype : None
     """
     random.seed(RANDOM_SEED)
-    simulation = Controller()
-    experiment = Experiment(DATA_FILE, simulation)
-    plotter = Interface()
+    #simulation = Controller()
+    experiment = Experiment()
+    #plotter = Interface()  # TODO
     print('Done.')
 
 if __name__ == '__main__':

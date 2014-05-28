@@ -21,7 +21,7 @@ class Controller(object):
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
         #self.build_network()
         #self.export_network_to_disk(NETWORK_EXPORT_PATH)
-        self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program to save time
+        self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program
         self.defaulted_banks = 0
         #self.trigger(self.banks[50].bank_id) # initial trigger
         #self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
@@ -129,7 +129,7 @@ class Controller(object):
         self.id_to_bank[counterparty_id].balance.interbank_borrowing[party_id] = amount
 
 
-    def trigger(self, bank_id):
+    def trigger(self, bank_id, consumer_loan_recovery_fraction=COMMON_RECOVERY_PARAMETER):
         """
         Initial default trigger.
         """
@@ -137,9 +137,9 @@ class Controller(object):
         loss = bank.balance.equity
         bank.balance.equity = 0.0
         bank.balance.cash -= loss
-        self.go_into_default(bank_id)
+        self.go_into_default(bank_id, consumer_loan_recovery_fraction)
 
-    def go_into_default(self, bank_id):
+    def go_into_default(self, bank_id, consumer_loan_recovery_fraction=COMMON_RECOVERY_PARAMETER):
         """
         Fails the bank object.
         Triggers contagion mechanism.
@@ -156,7 +156,7 @@ class Controller(object):
             interbank_borrowing_backup = copy.deepcopy(bank.balance.interbank_borrowing)
 
             # redeem outstanding loans:
-            money_retrieved = (COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
+            money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
             money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
             if money_left > 0:
                 bank.balance.cash = money_left

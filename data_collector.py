@@ -18,7 +18,7 @@ class Experiment(object):
 
     def asset_size_and_default_fraction(self):
         beginning_state_banks = list(pickle.load(open(NETWORK_EXPORT_PATH + '.pickle', 'r')))
-        super_simulation = Controller(True)
+        super_simulation = Controller(import_network=True)
         id_to_bank = super_simulation.id_to_bank.copy()
         bank_id_list = id_to_bank.copy().keys()
         for bank_id in bank_id_list:

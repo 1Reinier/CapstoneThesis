@@ -4,9 +4,7 @@
 """Main.py
 This project is an agent-based simulation of interbank lending, to asses systemic risk. It is created in partial
 fulfillment of the Capstone thesis project of the Amsterdam University College, towards the Bachelor of Science degree.
-
 References to research in the code are cited IEEE-style, and can be found in the README.md file.
-
 main.py is the interface used to run the simulation.
 """
 
@@ -31,9 +29,8 @@ def main():
     :rtype : None
     """
     random.seed(RANDOM_SEED)
-    #simulation = Controller()
+    simulation = Controller(import_network=False, export_network=True, build_network=True)
     experiment = Experiment()
-    #plotter = Interface()  # TODO
     print('Done.')
 
 if __name__ == '__main__':

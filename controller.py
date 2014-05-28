@@ -16,15 +16,17 @@ class Controller(object):
     """
     Controls simulation, allocation, and the underlying network.
     """
-    def __init__(self, import_network=False):
+    def __init__(self, import_network=False, export_network=False, build_network=False):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
-        #self.build_network()
-        #self.export_network_to_disk(NETWORK_EXPORT_PATH)
+        if build_network:
+            self.build_network()
+        if export_network:
+            self.export_network_to_disk(NETWORK_EXPORT_PATH)
         if import_network:
             self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program
         self.defaulted_banks = 0
-        #self.trigger(self.banks[50].bank_id) # initial trigger
+        #self.trigger(self.banks[50].bank_id) # initial trigger (example)
         #self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
         
     def build_network(self):

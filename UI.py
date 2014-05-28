@@ -14,4 +14,13 @@ class Interface(object):
         Plots data from xlist and ylist.
         """
         pass
+    #
+    #
+    #
+    #   TO DO IN FUTURE RESEARCH
+    #
+    #
+    #
+    #
+
 

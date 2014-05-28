@@ -19,12 +19,12 @@ class Controller(object):
     def __init__(self):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
-        self.build_network()
-        self.export_network_to_disk(NETWORK_EXPORT_PATH)
+        #self.build_network()
+        #self.export_network_to_disk(NETWORK_EXPORT_PATH)
         self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program to save time
         self.defaulted_banks = 0
-        self.trigger(self.banks[50].bank_id) # initial trigger
-        self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
+        #self.trigger(self.banks[50].bank_id) # initial trigger
+        #self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
         
     def build_network(self):
         """

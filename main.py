@@ -20,7 +20,6 @@ __status__ = "Development"
 
 import random
 from controller import Controller
-from timer import TimeStepper
 from data_collector import Experiment
 from UI import Interface
 from settings import *
@@ -32,10 +31,9 @@ def main():
     :rtype : None
     """
     random.seed(RANDOM_SEED)
-    clock = TimeStepper(STEP_SIZE)
     simulation = Controller()
-    experiment = Experiment(DATA_FILE)
-    plot = Interface()
+    experiment = Experiment(DATA_FILE, simulation)
+    plotter = Interface()
     print('Done.')
 
 if __name__ == '__main__':

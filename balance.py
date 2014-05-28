@@ -33,36 +33,6 @@ class BalanceSheet(object):
         self.cash_fraction = self.cash / self.assets
         self.equity_fraction = self.equity / self.assets
 
-    def change_equity(self, by_amount):
-        self.equity += by_amount
-        self.assets += by_amount
-        self.cash_fraction = self.cash / self.assets
-        self.equity_fraction = self.equity / self.assets
-
-    def set_equity(self, to_amount):
-        old_equity = self.equity
-        self.equity = to_amount
-        difference = to_amount - old_equity
-        self.assets += difference
-        self.cash_fraction = self.cash / self.assets
-        self.equity_fraction = self.equity / self.assets
-
-    def remove_outstanding_loan(self, counterparty_id):
-        loan_amount = self.interbank_lending[counterparty_id]
-        del self.interbank_lending[counterparty_id]
-        if loan_amount < self.equity:
-            self.change_equity(-loan_amount)
-        else:
-            self.set_equity(0)
-
-    def remove_incoming_loan(self, counterparty_id):
-        loan_amount = self.interbank_borrowing[counterparty_id]
-        del self.interbank_borrowing[counterparty_id]
-        if loan_amount < self.equity:
-            self.cash -= loan_amount
-        else:
-            self.cash = 0
-
     @property
     def interbank_lending_amount(self):
         return self.assets * (1 - self.cash_fraction - self.consumer_loans_fraction)

@@ -24,7 +24,11 @@ class Controller(object):
         #self.export_network_to_disk()
         self.defaulted_banks = 0
         self.import_network_from_disk()  # imports network created earlier by the program to save time
-        self.go_into_default(self.banks[6000]) # initial trigger
+        lijstje = range(6000, 6100)
+        for i in lijstje:
+            print self.banks[i].balance.equity, self.banks[i].balance.cash
+            self.trigger(self.banks[i]) # initial trigger
+            print self.banks[i].balance.equity, self.banks[i].balance.cash
         
     def create_banks(self):
         """
@@ -143,41 +147,76 @@ class Controller(object):
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, id(counterparty))
 
-    def go_into_default(self, bank):
+    def trigger(self, bank_id):
+        """
+        Initial default trigger.
+        """
+        bank = self.id_to_bank[bank_id]
+        loss = bank.balance.equity
+        bank.balance.equity = 0
+        bank.balance.cash -= loss
+        self.go_into_default(bank_id)
+
+    def go_into_default(self, bank_id):
         """
         Fails the bank object.
         Triggers contagion mechanism.
         """
-        # redeem outstanding loans:
+        bank = self.id_to_bank[bank_id]
         if not(bank.in_default):
-            bank.balance.equity = 0
+            # keeping score:
             self.defaulted_banks += 1
             print 'Bank {0} went bankrupt. Total: {1}'.format(bank.bank_id, self.defaulted_banks)
-            money_retrieved = COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans + \
-                              sum(bank.balance.interbank_lending.values())
-            money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
+
+            # Workaround for bug:
             interbank_lending_backup = bank.balance.interbank_lending
             _interbank_lending_backup = interbank_lending_backup.keys()
-            for counterparty_id in _interbank_lending_backup:
-                counterparty = self.id_to_bank[counterparty_id]
-                counterparty.balance.remove_incoming_loan(bank.bank_id)
-                del bank.balance.interbank_lending[counterparty_id]
-            # if money is left, creditors are paid:
-            if money_left > 0:
-                return_fraction = money_left / sum(bank.balance.interbank_borrowing)
-                if return_fraction > 1:
-                    return_fraction = 1
-                for bank_id in bank.balance.interbank_borrowing:
-                    self.id_to_bank[bank_id].balance.change_cash(return_fraction *
-                                                                 bank.balance.interbank_borrowing[bank_id])
-            # default on borrowed money:
             interbank_borrowing_backup = bank.balance.interbank_borrowing
             _interbank_borrowing_backup = interbank_borrowing_backup.keys()
-            for counterparty_id in _interbank_borrowing_backup:
+
+            # redeem outstanding loans:
+            money_retrieved = (COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
+            money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
+
+            # remove redeemed loans from counterparties' balance, and own balance:
+            for counterparty_id in _interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                counterparty.balance.remove_outstanding_loan(bank.bank_id)
-                del bank.balance.interbank_borrowing[counterparty_id]
-            # trigger next defaults:
+                loss = bank.balance.interbank_lending
+                if loss < counterparty.balance.cash:
+                    counterparty.balance.cash -= loss
+                else:
+                    counterparty.balance.cash = 0
+                del counterparty.balance.interbank_borrowing[bank.bank_id]
+                del bank.balance.interbank_lending[counterparty_id]
+
+            # if money is left, creditors are paid:
+            if money_left > 0:
+                return_fraction = money_left / sum(bank.balance.interbank_borrowing.values())  # fraction repaid
+                if return_fraction > 1:
+                    return_fraction = 1
+                for counterparty_id in _interbank_borrowing_backup:
+                    loan_size = bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty = self.id_to_bank[counterparty_id]
+                    loss = (1 - return_fraction) * loan_size
+                    if loss < counterparty.balance.equity:
+                        counterparty.balance.equity -= loss
+                    else:
+                        counterparty.balance.equity = 0
+                    del counterparty.balance.interbank_lending[bank.bank_id]
+                    del bank.balance.interbank_borrowing[counterparty_id]
+            else:
+                # default on borrowed money:
+                for counterparty_id in _interbank_borrowing_backup:
+                    loss = bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty = self.id_to_bank[counterparty_id]
+                    if loss < counterparty.balance.equity:
+                        counterparty.balance.equity -= loss
+                    else:
+                        counterparty.balance.equity = 0
+                    del counterparty.balance.interbank_lending[bank.bank_id]
+                    del bank.balance.interbank_borrowing[counterparty_id]
+
+            # check for, and trigger next defaults, if they occur:
             for counterparty_id in _interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.cash <= 0:
@@ -202,7 +241,9 @@ class Controller(object):
                                   equity=bank.balance.equity)
             for counterparty in bank.balance.interbank_lending:
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
+        # save GEXF:
         nx.write_gexf(bank_network, NETWORK_EXPORT_PATH + 'bank_network.gexf')
+        # save objects in Pickle:
         pickle.dump(self.banks, open(NETWORK_EXPORT_PATH + 'bank_network_pickle', 'w'))
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
 

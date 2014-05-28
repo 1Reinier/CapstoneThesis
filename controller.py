@@ -19,9 +19,10 @@ class Controller(object):
     def __init__(self):
         self.banks = []  # contains all bank objects
         self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
-        self.create_banks()
-        self.build_network()
-        self.export_network_to_disk()
+        #self.create_banks()
+        #self.build_network()
+        #self.export_network_to_disk()
+        self.import_network_from_disk()  # imports network created earlier by the program to save time
         
     def create_banks(self):
         """

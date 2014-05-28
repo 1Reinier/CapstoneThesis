@@ -24,11 +24,7 @@ class Controller(object):
         #self.export_network_to_disk()
         self.import_network_from_disk()  # imports network created earlier by the program to save time
         self.defaulted_banks = 0
-        lijstje = range(6000, 6100)
-        for i in lijstje:
-            print self.banks[i].balance.equity, self.banks[i].balance.cash
-            self.trigger(self.banks[i].bank_id) # initial trigger
-            print self.banks[i].balance.equity, self.banks[i].balance.cash
+        self.trigger(self.banks[3068].bank_id) # initial trigger
         
     def create_banks(self):
         """
@@ -114,24 +110,29 @@ class Controller(object):
         id_list = self.id_to_bank.keys()
         listlength = len(id_list)
         print 'Starting loan allocation...'
+
         for bank_id in id_list:
             # Progress indicator:
             now = id_list.index(bank_id)
             percent = 100 * (float(now) / listlength)
             print '{0}%'.format(percent)
-            # ------------------
+
+            # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                           # weak reference to bank
             borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree), -1)
             if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
+
                  # adjust balance sheet composition:
                  old_lending_fraction = bank.lending_supply / bank.balance.assets
                  new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
                  addition = (old_lending_fraction - new_lending_fraction)/2
                  bank.balance.cash_fraction += addition
                  bank.balance.consumer_loans_fraction += addition
+
             # create interbank loans:
             for borrower_index in borrowers_indices:
+
                 # Lend everyone fraction in accordance with demand
                 counterparty = self.id_to_bank[id(self.banks[borrower_index])]  # weak ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
@@ -161,10 +162,8 @@ class Controller(object):
             print 'Bank {0} went bankrupt. Total: {1}'.format(bank.bank_id, self.defaulted_banks)
 
             # Workaround for bug:
-            interbank_lending_backup = bank.balance.interbank_lending
-            _interbank_lending_backup = interbank_lending_backup.keys()
-            interbank_borrowing_backup = bank.balance.interbank_borrowing
-            _interbank_borrowing_backup = interbank_borrowing_backup.keys()
+            interbank_lending_backup = bank.balance.interbank_lending.copy()
+            interbank_borrowing_backup = bank.balance.interbank_borrowing.copy()
 
             # redeem outstanding loans:
             money_retrieved = (COMMON_RECOVERY_PARAMETER * bank.balance.consumer_loans) + sum(bank.balance.interbank_lending.values())
@@ -175,7 +174,7 @@ class Controller(object):
                 bank.balance.cash = 0.0
 
             # remove redeemed loans from counterparties' balance, and own balance:
-            for counterparty_id in _interbank_lending_backup:
+            for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 loss = bank.balance.interbank_lending
                 if loss < counterparty.balance.cash:
@@ -186,11 +185,11 @@ class Controller(object):
                 del bank.balance.interbank_lending[counterparty_id]
 
             # default on borrowed money. If money is left after depositors pay-out, creditors are paid:
-            if money_left > 0.0:
-                return_fraction = money_left / sum(interbank_borrowing_backup.values())  # fraction repaid
+            if bank.balance.cash > 0.0:
+                return_fraction = bank.balance.cash / sum(interbank_borrowing_backup.values())  # fraction repaid
                 if return_fraction > 1.0:
                     return_fraction = 1.0
-                for counterparty_id in _interbank_borrowing_backup:
+                for counterparty_id in interbank_borrowing_backup:
                     loan_size = bank.balance.interbank_borrowing[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
                     loss = (1.0 - return_fraction) * loan_size
@@ -202,7 +201,7 @@ class Controller(object):
                     del bank.balance.interbank_borrowing[counterparty_id]
             else:
                 # default on borrowed money without money left:
-                for counterparty_id in _interbank_borrowing_backup:
+                for counterparty_id in interbank_borrowing_backup:
                     loss = interbank_borrowing_backup[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
                     if loss < counterparty.balance.equity:
@@ -213,13 +212,15 @@ class Controller(object):
                     del bank.balance.interbank_borrowing[counterparty_id]
 
             # check for, and trigger next defaults, if they occur:
-            for counterparty_id in _interbank_lending_backup:
-                counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.cash <= 0.0:
-                    self.go_into_default(counterparty_id)
-            for counterparty_id in _interbank_borrowing_backup:
+            for counterparty_id in interbank_borrowing_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.equity <= 0.0:
+                    print 'Yes'
+                    self.go_into_default(counterparty_id)
+            for counterparty_id in interbank_lending_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                if counterparty.balance.cash <= 0.0:
+                    print 'Yes2'
                     self.go_into_default(counterparty_id)
 
     def export_network_to_disk(self):

@@ -21,7 +21,7 @@ __status__ = "Development"
 import random
 from controller import Controller
 from timer import TimeStepper
-from data_collector import DataCollector
+from data_collector import Experiment
 from UI import Interface
 from settings import *
 
@@ -34,7 +34,7 @@ def main():
     random.seed(RANDOM_SEED)
     clock = TimeStepper(STEP_SIZE)
     simulation = Controller()
-    data = DataCollector(DATA_FILE)
+    experiment = Experiment(DATA_FILE)
     plot = Interface()
     print('Done.')
 

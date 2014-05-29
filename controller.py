@@ -163,8 +163,12 @@ class Controller(object):
                 counterparty = self.id_to_bank[counterparty_id]
                 if bank.balance.interbank_lending[counterparty_id] >= counterparty.balance.cash:
                     retrievable = counterparty.balance.cash
+                    counterparty.balance.cash = 0.0
                 else:
                     retrievable = bank.balance.interbank_lending[counterparty_id]
+                    counterparty.balance.cash -= retrievable
+                del counterparty.balance.interbank_borrowing[bank.bank_id]
+                del bank.balance.interbank_lending[counterparty_id]
             money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + retrievable
             money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
             if money_left > 0:
@@ -172,14 +176,6 @@ class Controller(object):
             else:
                 bank.balance.cash = 0.0
             bank.balance.deposits = 0.0
-
-            # remove redeemed loans from counterparties' balance, and own balance:
-            for counterparty_id in interbank_lending_backup:
-                counterparty = self.id_to_bank[counterparty_id]
-                loss = retrievable
-                counterparty.balance.cash -= loss
-                del counterparty.balance.interbank_borrowing[bank.bank_id]
-                del bank.balance.interbank_lending[counterparty_id]
 
             # default on borrowed money. If money is left after depositors pay-out, creditors are paid:
             if bank.balance.cash > 0.0:

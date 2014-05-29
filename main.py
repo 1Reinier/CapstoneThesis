@@ -30,7 +30,7 @@ def main():
     """
     random.seed(RANDOM_SEED)
     simulation = Controller(import_network=False, export_network=True, build_network=True)
-    experiment = Experiment()
+    #experiment = Experiment()
     print('Done.')
 
 if __name__ == '__main__':

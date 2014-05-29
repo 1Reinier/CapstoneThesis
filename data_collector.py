@@ -11,10 +11,14 @@ class Experiment(object):
     """
     Collects and stores data from the simulation, for later use.
     """
-    def __init__(self):
+    def __init__(self, asset_size=True, kappa_value=True):
         self.asset_failure_data = {}
-        self.asset_size_and_default_fraction()
-        self.export_data_to_csv(self.asset_failure_data)
+        self.kappa_data = {}
+        if asset_size:
+            self.asset_size_and_default_fraction()
+            self.export_data_to_csv(self.asset_failure_data)
+        if kappa_value:
+            pass
 
     def asset_size_and_default_fraction(self):
         beginning_state_banks = list(pickle.load(open(NETWORK_EXPORT_PATH + '.pickle', 'r')))

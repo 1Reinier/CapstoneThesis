@@ -19,7 +19,6 @@ __status__ = "Development"
 import random
 from controller import Controller
 from data_collector import Experiment
-from UI import Interface
 from settings import *
 
 
@@ -29,8 +28,8 @@ def main():
     :rtype : None
     """
     random.seed(RANDOM_SEED)
-    simulation = Controller(import_network=False, export_network=True, build_network=True)
-    #experiment = Experiment()
+    #simulation = Controller(import_network=False, export_network=True, build_network=True)
+    experiment = Experiment(asset_size=True, kappa_value=False)
     print('Done.')
 
 if __name__ == '__main__':

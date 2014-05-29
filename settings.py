@@ -4,9 +4,6 @@
 Sets all parameters and constants used in the simulation.
 """
 
-# -- TIME --
-STEP_SIZE = 1
-
 # -- STATISTICS --
 RANDOM_SEED = 42         # default is 42, controls random number generation
 PARETO_SHAPE = 0.670     # from Goddard, 2014 [1]

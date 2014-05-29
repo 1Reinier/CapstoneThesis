@@ -231,11 +231,11 @@ class Controller(object):
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
         # save GEXF:
         nx.write_gexf(bank_network, path + '.gexf')
-        # save objects in Pickle:
-        pickle.dump(self.banks, open(path + '.pickle', 'w'))
+        # save simulation state in Pickle:
+        pickle.dump(self, open(path + '.pickle', 'w'))
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
 
-    def import_network_from_disk(self, path):
+    def import_state_from_disk(self, path):
         """
         Imports network from pickle on disk and stores it in self.banks.
         """

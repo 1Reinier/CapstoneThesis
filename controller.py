@@ -83,14 +83,13 @@ class Controller(object):
         :rtype : None
         """
         id_list = self.id_to_bank.keys()
-        listlength = len(id_list)
+        length = len(id_list)
         print 'Starting loan allocation...'
 
         for bank_id in id_list:
             # Progress indicator:
-            now = id_list.index(bank_id)
-            percent = 100 * (float(now) / listlength)
-            print 'Loan allocation: {0}%\r'.format(percent),
+            progress = 100 * (float(id_list.index(bank_id)) / length)
+            print 'Loan allocation: {0}%\r'.format(round(progress, 2)),
 
             # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand

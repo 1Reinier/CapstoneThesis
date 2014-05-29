@@ -30,7 +30,7 @@ def main():
     """
     random.seed(RANDOM_SEED)
     simulation = Controller(import_network=False, export_network=True, build_network=True)
-    pickle.dump(simulation, open(PICKLE_PATH, 'wb'))
+    pickle.dump(simulation, open(PICKLE_PATH, 'wb'), -1)
     experiment = Experiment(asset_size=True, kappa_value=False, base_simulation_location = PICKLE_PATH)
     print('Done.')
 

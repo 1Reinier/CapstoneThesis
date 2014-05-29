@@ -25,7 +25,8 @@ class Experiment(object):
     def asset_size_and_default_fraction(self):
         length = len(self.base_bank_id_list)
         for bank_id in self.base_bank_id_list:
-            print 'Asset size experiment: {0}%\r'.format(100 * float(self.base_bank_id_list.index(bank_id)) / length),
+            progress = 100 * float(self.base_bank_id_list.index(bank_id)) / length
+            print 'Asset size experiment: {0}%\r'.format(round(progress, 2)),
             simulation = copy.deepcopy(self.base_simulation)
             simulation.trigger(bank_id)
             fraction_failing = float(simulation.defaulted_banks) / float(NUMBER_OF_BANKS)

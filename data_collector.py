@@ -2,8 +2,7 @@
 Implements experiments, data collection and storage.
 """
 import csv
-import random
-from settings import *
+import copy
 from controller import *
 
 
@@ -21,17 +20,16 @@ class Experiment(object):
             pass
 
     def asset_size_and_default_fraction(self):
-        beginning_state_banks = list(pickle.load(open(NETWORK_EXPORT_PATH + '.pickle', 'r')))
-        super_simulation = Controller(import_network=True)
-        id_to_bank = super_simulation.id_to_bank.copy()
-        bank_id_list = id_to_bank.copy().keys()
+        simulation = Controller(import_network=True)
+        banks_initial_state = copy.deepcopy(simulation.id_to_bank)  # safely copy init state
+        bank_id_list = copy.deepcopy(banks_initial_state.keys())
         for bank_id in bank_id_list:
-            super_simulation.banks = list(beginning_state_banks)
-            for bank in super_simulation.banks:
-                super_simulation.id_to_bank[bank.bank_id] = bank  # update weak ref dictionary
-            bank = super_simulation.id_to_bank[bank_id]
-            super_simulation.trigger(bank_id)
-            fraction_failing = float(super_simulation.defaulted_banks) / float(NUMBER_OF_BANKS)
+            simulation.banks = copy.deepcopy(banks_initial_state)
+            for bank in simulation.banks:
+                simulation.id_to_bank[bank.bank_id] = bank  # update weak ref dictionary
+            bank = simulation.id_to_bank[bank_id]
+            simulation.trigger(bank_id)
+            fraction_failing = float(simulation.defaulted_banks) / float(NUMBER_OF_BANKS)
             self.asset_failure_data[bank_id] = [bank.balance.assets, fraction_failing, bank.out_degree]
 
     def export_data_to_csv(self, dictionary):

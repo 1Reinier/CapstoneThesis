@@ -90,7 +90,7 @@ class Controller(object):
             # Progress indicator:
             now = id_list.index(bank_id)
             percent = 100 * (float(now) / listlength)
-            print 'Loan allocation: {0}%\r'.format(percent)
+            print 'Loan allocation: {0}%\r'.format(percent),
 
             # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
@@ -113,6 +113,7 @@ class Controller(object):
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, id(counterparty))
+        print
 
     def aggregate_demand(self, borrowers_indices):
         """

@@ -90,7 +90,7 @@ class Controller(object):
             # Progress indicator:
             now = id_list.index(bank_id)
             percent = 100 * (float(now) / listlength)
-            print '{0}%'.format(percent)
+            print 'Loan allocation: {0}%\r'.format(percent)
 
             # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
@@ -232,7 +232,7 @@ class Controller(object):
         # save GEXF:
         nx.write_gexf(bank_network, path + '.gexf')
         # save simulation state in Pickle:
-        pickle.dump(self, open(path + '.pickle', 'w'))
+       #pickle.dump(self.banks, open(path + '.pickle', 'w'))
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
 
     def import_state_from_disk(self, path):

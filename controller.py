@@ -94,7 +94,8 @@ class Controller(object):
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                            # reference to bank
             borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 1, -1)
-            if bank_id in borrowers_indices:
+            borrowers_ids = [self.banks[index].bank_id for index in borrowers_indices]
+            if bank_id in borrowers_ids:
                 place = borrowers_indices.index(bank_id)
                 borrowers_indices[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 2]  # no loans to self
 
@@ -111,6 +112,9 @@ class Controller(object):
 
                 # Lend everyone fraction in accordance with demand
                 counterparty_id = self.banks[borrower_index].bank_id
+                if bank_id == counterparty_id:
+                    raise AssertionError
+
                 counterparty = self.id_to_bank[counterparty_id]  # ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))

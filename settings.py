@@ -17,6 +17,7 @@ NUMBER_OF_BANKS_PARETO = 180      # US banking market. [1] +/- 180 banks control
 POWERLAW_EXPONENT_OUT_DEGREE = 2.11
 COMMON_RECOVERY_PARAMETER = 1.0   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
 NUMBER_OF_BANKS = NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO
+MAX_K_OUT = NUMBER_OF_BANKS  # [4]
 
 # -- BALANCE SHEET --
 DEFAULT_CONSUMER_LOANS_FRACTION = 0.883
@@ -42,6 +43,8 @@ DATA_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/data.csv'
 #
 # [3] R. Gropp and F. Heider, “The Determinants of Bank Capital Structure,” Rev. Financ., vol. 14, no. 4, pp. 587–622,
 #        Mar. 2010.
+#
+# [4] K. Soramäki, M. Bech, and J. Arnold, “The topology of interbank payment flows,” Phys. A Stat. Mech., 2007.
 
 
 

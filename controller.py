@@ -45,13 +45,13 @@ class Controller(object):
         All created banks are registered in the dictionary self.id_to_bank.
         :rtype : None
         """
-        for n in range(0, NUMBER_OF_BANKS_LOGNORMAL):
+        for n in xrange(0, NUMBER_OF_BANKS_LOGNORMAL):
             bank_size = Statistics.generate_lognormal_number(LOGNORMAL_MEAN, LOGNOMRAL_STDEV)
             bank = Bank(bank_size)
             self.banks.append(bank)
             self.id_to_bank[id(bank)] = bank
 
-        for n in range(0, NUMBER_OF_BANKS_PARETO):
+        for n in xrange(0, NUMBER_OF_BANKS_PARETO):
             bank_size = Statistics.generate_pareto_number(PARETO_SCALE, PARETO_SHAPE)
             bank = Bank(bank_size)
             self.banks.append(bank)
@@ -66,9 +66,9 @@ class Controller(object):
         self.banks.sort(key=lambda _bank: _bank.balance.assets)
         degrees = [math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.6748)
                    for degree in xrange(0, len(self.banks))]
-        for i in range(0, len(degrees)):
-            if degrees[i] > NUMBER_OF_BANKS:
-                degrees[i] = NUMBER_OF_BANKS
+        for i in xrange(0, len(degrees)):
+            if degrees[i] > MAX_K_OUT:
+                degrees[i] = MAX_K_OUT
         degrees.sort()
         for n in xrange(0, len(self.banks)):
             self.banks[n].out_degree = degrees[n]
@@ -93,7 +93,7 @@ class Controller(object):
             # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                            # reference to bank
-            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 2, -1)
+            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 1, -1)
             if bank_id in borrowers_indices:
                 place = borrowers_indices.index(bank_id)
                 borrowers_indices[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 2]  # no loans to self
@@ -102,7 +102,7 @@ class Controller(object):
                  # adjust balance sheet composition:
                  old_lending_fraction = bank.lending_supply / bank.balance.assets
                  new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
-                 addition = (old_lending_fraction - new_lending_fraction)/2
+                 addition = (old_lending_fraction - new_lending_fraction) / 2
                  bank.balance.cash_fraction += addition
                  bank.balance.consumer_loans_fraction += addition
 
@@ -110,7 +110,7 @@ class Controller(object):
             for borrower_index in borrowers_indices:
 
                 # Lend everyone fraction in accordance with demand
-                counterparty = self.id_to_bank[id(self.banks[borrower_index])]  # weak ref to other bank
+                counterparty = self.id_to_bank[id(self.banks[borrower_index])]  # ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, id(counterparty))
@@ -169,8 +169,8 @@ class Controller(object):
                 else:
                     retrievable = bank.balance.interbank_lending[counterparty_id]
                     counterparty.balance.cash -= retrievable
-                del counterparty.balance.interbank_borrowing[bank.bank_id]
-                del bank.balance.interbank_lending[counterparty_id]
+                counterparty.balance.interbank_borrowing[bank.bank_id] = 0
+                bank.balance.interbank_lending[counterparty_id] = 0
             money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + retrievable
             money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
             if money_left > 0:
@@ -195,8 +195,8 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    del counterparty.balance.interbank_lending[bank.bank_id]
-                    del bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty.balance.interbank_lending[bank.bank_id] = 0
+                    bank.balance.interbank_borrowing[counterparty_id] = 0
             else:
                 # default on borrowed money without money left:
                 for counterparty_id in interbank_borrowing_backup:
@@ -206,8 +206,8 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    del counterparty.balance.interbank_lending[bank.bank_id]
-                    del bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty.balance.interbank_lending[bank.bank_id] = 0
+                    bank.balance.interbank_borrowing[counterparty_id] = 0
 
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in interbank_borrowing_backup:

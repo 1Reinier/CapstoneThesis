@@ -6,7 +6,6 @@ import copy
 import math
 import networkx as nx
 import pickle
-import test
 from statistics import Statistics
 from bank import Bank
 from settings import *
@@ -112,11 +111,11 @@ class Controller(object):
 
                 # Lend everyone fraction in accordance with demand
                 counterparty_id = self.banks[borrower_index].bank_id
-                counterparty = self.id_to_bank[counterparty]  # ref to other bank
+                counterparty = self.id_to_bank[counterparty_id]  # ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
                 self.make_loan(loan_amount, bank_id, counterparty_id)
-            if not test.check_bank(bank):
+            if not self.check_bank(bank):
                 raise AssertionError, '{0}, {1}, {2}, {3}, {4}, {5}'.format(id(bank),
                                                                             bank.bank_id,
                                                                             bank.balance.interbank_lending,
@@ -261,3 +260,9 @@ class Controller(object):
         """
         for bank in self.banks:
             bank.test()
+
+    def check_bank(self, bank):
+        if bank.bank_id in bank.balance.interbank_lending or bank.bank_id in bank.balance.interbank_borrowing:
+            return False
+        else:
+            return True

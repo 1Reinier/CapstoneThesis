@@ -64,7 +64,7 @@ class Controller(object):
         :rtype : None
         """
         self.banks.sort(key=lambda _bank: _bank.balance.assets)
-        degrees = [math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.5)
+        degrees = [math.floor(Statistics.draw_from_powerlaw(POWERLAW_EXPONENT_OUT_DEGREE, 1.0) + 0.6748)
                    for degree in xrange(0, len(self.banks))]
         for i in range(0, len(degrees)):
             if degrees[i] > NUMBER_OF_BANKS:
@@ -81,7 +81,7 @@ class Controller(object):
         Loan size is determined in such a manner to ensure non-zero and non-trivial loans.
         :rtype : None
         """
-        id_list = self.id_to_bank.keys()
+        id_list = copy.deepcopy(self.id_to_bank.keys())
         length = len(id_list)
         print 'Starting loan allocation...'
 
@@ -93,10 +93,10 @@ class Controller(object):
             # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
             bank = self.id_to_bank[bank_id]                            # reference to bank
-            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 1, -1)
+            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 2, -1)
             if bank_id in borrowers_indices:
                 place = borrowers_indices.index(bank_id)
-                borrowers_indices[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 1]  # no loans to self
+                borrowers_indices[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 2]  # no loans to self
 
             if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                  # adjust balance sheet composition:
@@ -236,8 +236,6 @@ class Controller(object):
                 bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
         # save GEXF:
         nx.write_gexf(bank_network, path + '.gexf')
-        # save simulation state in Pickle:
-       #pickle.dump(self.banks, open(path + '.pickle', 'w'))
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'
 
     def import_state_from_disk(self, path):

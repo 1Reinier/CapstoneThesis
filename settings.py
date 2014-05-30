@@ -26,6 +26,7 @@ DEFAULT_DEPOSITS_FRACTION = 0.869
 DEFAULT_EQUITY_FRACTION = 0.114
 
 # -- DATA --
+THREADS = 5
 NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network'
 PICKLE_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/simulation_state.pickle'
 FAILED_NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network_failed'

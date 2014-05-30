@@ -6,6 +6,7 @@ import copy
 import math
 import networkx as nx
 import pickle
+import test
 from statistics import Statistics
 from bank import Bank
 from settings import *
@@ -24,7 +25,7 @@ class Controller(object):
             self.export_network_to_disk(NETWORK_EXPORT_PATH)
         if import_network:
             self.import_network_from_disk(NETWORK_EXPORT_PATH)  # imports network created earlier by the program
-        self.defaulted_banks = 0
+        self.defaulted_banks = 0.0
         #self.trigger(self.banks[50].bank_id) # initial trigger (example)
         #self.export_network_to_disk(FAILED_NETWORK_EXPORT_PATH)  # save network after triggering defaults.
         
@@ -110,10 +111,16 @@ class Controller(object):
             for borrower_index in borrowers_indices:
 
                 # Lend everyone fraction in accordance with demand
-                counterparty = self.id_to_bank[id(self.banks[borrower_index])]  # ref to other bank
+                counterparty_id = self.banks[borrower_index].bank_id
+                counterparty = self.id_to_bank[counterparty]  # ref to other bank
                 loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
                                                      self.aggregate_demand(borrowers_indices))
-                self.make_loan(loan_amount, bank_id, id(counterparty))
+                self.make_loan(loan_amount, bank_id, counterparty_id)
+            if not test.check_bank(bank):
+                raise AssertionError, '{0}, {1}, {2}, {3}, {4}, {5}'.format(id(bank),
+                                                                            bank.bank_id,
+                                                                            bank.balance.interbank_lending,
+                                                                            bank.balance.interbank_borrowing)
         print
 
     def aggregate_demand(self, borrowers_indices):
@@ -153,7 +160,7 @@ class Controller(object):
         if not(bank.in_default):
             bank.in_default = True
             # keeping score:
-            self.defaulted_banks += 1
+            self.defaulted_banks += 1.0
 
             # Workaround for bug:
             interbank_lending_backup = copy.deepcopy(bank.balance.interbank_lending)
@@ -195,8 +202,8 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    counterparty.balance.interbank_lending[bank.bank_id] = 0
-                    bank.balance.interbank_borrowing[counterparty_id] = 0
+                    del counterparty.balance.interbank_lending[bank.bank_id]
+                    del bank.balance.interbank_borrowing[counterparty_id]
             else:
                 # default on borrowed money without money left:
                 for counterparty_id in interbank_borrowing_backup:
@@ -206,8 +213,8 @@ class Controller(object):
                         counterparty.balance.equity -= loss
                     else:
                         counterparty.balance.equity = 0.0
-                    counterparty.balance.interbank_lending[bank.bank_id] = 0
-                    bank.balance.interbank_borrowing[counterparty_id] = 0
+                    del counterparty.balance.interbank_lending[bank.bank_id]
+                    del bank.balance.interbank_borrowing[counterparty_id]
 
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in interbank_borrowing_backup:
@@ -225,7 +232,7 @@ class Controller(object):
         """
         bank_network = nx.DiGraph()
         for bank in self.banks:
-            bank_network.add_node(id(bank), assets=bank.balance.assets,
+            bank_network.add_node(bank.bank_id, assets=bank.balance.assets,
                                   cash=bank.balance.cash,
                                   consumer_loans=bank.balance.consumer_loans,
                                   interbank_lending=bank.balance.current_amount_of_interbank_lending,
@@ -233,7 +240,7 @@ class Controller(object):
                                   interbank_borrowing=bank.balance.current_amount_of_interbank_borrowing,
                                   equity=bank.balance.equity)
             for counterparty in bank.balance.interbank_lending:
-                bank_network.add_edge(id(bank), counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
+                bank_network.add_edge(bank.bank_id, counterparty, loan_amount=bank.balance.interbank_lending[counterparty])
         # save GEXF:
         nx.write_gexf(bank_network, path + '.gexf')
         print 'Network exported to: ' + NETWORK_EXPORT_PATH + '.'

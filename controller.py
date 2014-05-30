@@ -96,8 +96,9 @@ class Controller(object):
             borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 1, -1)
             borrowers_ids = [self.banks[index].bank_id for index in borrowers_indices]
             if bank_id in borrowers_ids:
-                place = borrowers_indices.index(bank_id)
-                borrowers_indices[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 2]  # no loans to self
+                # no loans to self
+                place = borrowers_ids.index(bank_id)
+                borrowers_indices[place] = NUMBER_OF_BANKS - int(bank.out_degree) - 2
 
             if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                  # adjust balance sheet composition:

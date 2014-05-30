@@ -15,7 +15,7 @@ class Experiment(object):
         print 'Starting experiment...'
         if base_simulation_location:
             self.base_simulation = pickle.load(open(base_simulation_location, 'rb'))
-            self.base_bank_id_list = [bank_id for bank_id in self.base_simulation.banks]
+            self.base_bank_id_list = [bank.bank_id for bank in self.base_simulation.banks]
         if asset_size:
             self.asset_size_and_default_fraction()
             self.export_data_to_csv(self.asset_failure_data)

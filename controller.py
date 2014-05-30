@@ -3,7 +3,6 @@ Contains simulation controller class, and inherent simulation logic.
 """
 
 import copy
-import weakref
 import math
 import networkx as nx
 import pickle
@@ -18,7 +17,7 @@ class Controller(object):
     """
     def __init__(self, import_network=False, export_network=False, build_network=False):
         self.banks = []  # contains all bank objects
-        self.id_to_bank = weakref.WeakValueDictionary()  # weak reference map of id's to all banks. Like pointers in C.
+        self.id_to_bank = dict()  # reference map of id's to all banks.
         if build_network:
             self.build_network()
         if export_network:
@@ -93,10 +92,13 @@ class Controller(object):
 
             # allocation of bank-bank connections:
             self.banks.sort(key=lambda _bank: _bank.borrowing_demand)  # sort banks from low to to high demand
-            bank = self.id_to_bank[bank_id]                           # weak reference to bank
-            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree), -1)
-            if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
+            bank = self.id_to_bank[bank_id]                            # reference to bank
+            borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 1, -1)
+            if bank_id in borrowers_indices:
+                place = borrowers_indices.index(bank_id)
+                borrowers_indices[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 1]  # no loans to self
 
+            if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
                  # adjust balance sheet composition:
                  old_lending_fraction = bank.lending_supply / bank.balance.assets
                  new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
@@ -179,7 +181,10 @@ class Controller(object):
 
             # default on borrowed money. If money is left after depositors pay-out, creditors are paid:
             if bank.balance.cash > 0.0:
-                return_fraction = bank.balance.cash / bank.balance.current_amount_of_interbank_borrowing  # fraction repaid
+                return_fraction = 0
+                if bank.balance.current_amount_of_interbank_borrowing != 0:
+                    # fraction repaid:
+                    return_fraction = bank.balance.cash / bank.balance.current_amount_of_interbank_borrowing
                 if return_fraction > 1.0:
                     return_fraction = 1.0
                 for counterparty_id in interbank_borrowing_backup:

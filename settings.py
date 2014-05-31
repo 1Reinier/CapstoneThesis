@@ -27,7 +27,7 @@ DEFAULT_EQUITY_FRACTION = 0.114
 
 # -- DATA --
 NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network'
-PICKLE_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/simulation_state.pickle'
+PICKLE_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/simulation_state'
 FAILED_NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network_failed'
 DATA_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/data.csv'
 

@@ -12,10 +12,10 @@ LOGNORMAL_MEAN = 11.910  # [1]
 LOGNOMRAL_STDEV = 1.078  # [1]
 
 # -- BANK NETWORK --
-NUMBER_OF_BANKS_LOGNORMAL = 6300  # As in the 2014 paper by Goddard on the asset size distribution of the
-NUMBER_OF_BANKS_PARETO = 180      # US banking market. [1] +/- 180 banks control 85% of all assets.
+NUMBER_OF_BANKS_LOGNORMAL = 63  # As in the 2014 paper by Goddard on the asset size distribution of the
+NUMBER_OF_BANKS_PARETO = 18      # US banking market. [1] +/- 180 banks control 85% of all assets.
 POWERLAW_EXPONENT_OUT_DEGREE = 2.11
-COMMON_RECOVERY_PARAMETER = 1.0   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
+COMMON_RECOVERY_PARAMETER = 0   # Recovery parameter 'kappa' for liquidated consumer loans, as in [2].
 NUMBER_OF_BANKS = NUMBER_OF_BANKS_LOGNORMAL + NUMBER_OF_BANKS_PARETO
 MAX_K_OUT = NUMBER_OF_BANKS  # [4]
 
@@ -26,7 +26,6 @@ DEFAULT_DEPOSITS_FRACTION = 0.869
 DEFAULT_EQUITY_FRACTION = 0.114
 
 # -- DATA --
-THREADS = 5
 NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network'
 PICKLE_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/simulation_state.pickle'
 FAILED_NETWORK_EXPORT_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/bank_network_failed'
@@ -46,6 +45,7 @@ DATA_PATH = '/Users/reiniermaat2/Desktop/CapstoneTest/data.csv'
 #        Mar. 2010.
 #
 # [4] K. Soramäki, M. Bech, and J. Arnold, “The topology of interbank payment flows,” Phys. A Stat. Mech., 2007.
+#
 
 
 

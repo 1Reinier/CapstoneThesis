@@ -96,9 +96,11 @@ class Controller(object):
             borrowers_indices = range(NUMBER_OF_BANKS - 1, NUMBER_OF_BANKS - int(bank.out_degree) - 1, -1)
             borrowers_ids = [self.banks[index].bank_id for index in borrowers_indices]
             if bank_id in borrowers_ids:
-                # no loans to self
-                place = borrowers_ids.index(bank_id)
-                borrowers_ids[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 2].bank_id
+                iterator = iter(self.banks[(NUMBER_OF_BANKS - int(bank.out_degree) - 2):])
+                while bank_id in borrowers_ids:
+                    # no loans to self
+                    place = borrowers_ids.index(bank_id)
+                    borrowers_ids[place] = next(iterator).bank_id
 
             if self.aggregate_demand(borrowers_ids) < bank.lending_supply:
                  # adjust balance sheet composition:
@@ -214,13 +216,13 @@ class Controller(object):
                     del bank.balance.interbank_borrowing[counterparty_id]
 
             # check for, and trigger next defaults, if they occur:
-            for counterparty_id in interbank_borrowing_backup:
-                counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.equity <= 0.0:
-                    self.go_into_default(counterparty_id)
             for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
                 if counterparty.balance.cash <= 0.0:
+                    self.go_into_default(counterparty_id)
+            for counterparty_id in interbank_borrowing_backup:
+                counterparty = self.id_to_bank[counterparty_id]
+                if counterparty.balance.equity <= 0.0:
                     self.go_into_default(counterparty_id)
 
     def export_network_to_disk(self, path):

@@ -11,7 +11,7 @@ class Experiment(object):
     """
     Collects and stores data from the simulation, for later use.
     """
-    def __init__(self, asset_size=True, kappa_value=True, base_simulation_location=None):
+    def __init__(self, asset_size=True, kappa_value=True, base_simulation_location=PICKLE_PATH):
         self.asset_failure_data = {}
         self.kappa_data = {}
         print 'Starting experiment...'

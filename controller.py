@@ -197,6 +197,7 @@ class Controller(object):
                     loan_size = bank.balance.interbank_borrowing[counterparty_id]
                     cash_back = return_fraction * loan_size
                     counterparty.balance.cash += cash_back
+                    bank.balance.cash -= cash_back
                     del counterparty.balance.interbank_lending[bank.bank_id]
                     del bank.balance.interbank_borrowing[counterparty_id]
                     counterparty.balance.recalculate_current_equity()
@@ -213,11 +214,11 @@ class Controller(object):
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.equity <= 0.0:
+                if counterparty.balance.equity <= 0.0 or counterparty.balance.cash <= 0.0:
                     self.go_into_default(counterparty_id)
             for counterparty_id in interbank_borrowing_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.equity <= 0.0:
+                if counterparty.balance.equity <= 0.0 or counterparty.balance.cash <= 0.0:
                     self.go_into_default(counterparty_id)
 
     def export_network_to_disk(self, path):

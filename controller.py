@@ -98,38 +98,36 @@ class Controller(object):
             if bank_id in borrowers_ids:
                 # no loans to self
                 place = borrowers_ids.index(bank_id)
-                borrowers_indices[place] = NUMBER_OF_BANKS - int(bank.out_degree) - 2
+                borrowers_ids[place] = self.banks[NUMBER_OF_BANKS - int(bank.out_degree) - 2].bank_id
 
-            if self.aggregate_demand(borrowers_indices) < bank.lending_supply:
+            if self.aggregate_demand(borrowers_ids) < bank.lending_supply:
                  # adjust balance sheet composition:
                  old_lending_fraction = bank.lending_supply / bank.balance.assets
-                 new_lending_fraction = self.aggregate_demand(borrowers_indices) / bank.balance.assets
+                 new_lending_fraction = self.aggregate_demand(borrowers_ids) / bank.balance.assets
                  addition = (old_lending_fraction - new_lending_fraction) / 2
                  bank.balance.cash_fraction += addition
                  bank.balance.consumer_loans_fraction += addition
 
             # create interbank loans:
-            for borrower_index in borrowers_indices:
+            for borrower_id in borrowers_ids:
 
                 # Lend everyone fraction in accordance with demand
-                counterparty_id = self.banks[borrower_index].bank_id
+                counterparty_id = borrower_id
                 if bank_id == counterparty_id:
                     raise AssertionError
-
                 counterparty = self.id_to_bank[counterparty_id]  # ref to other bank
-                loan_amount = bank.lending_supply * (counterparty.borrowing_demand /
-                                                     self.aggregate_demand(borrowers_indices))
+                loan_amount = bank.lending_supply*(counterparty.borrowing_demand / self.aggregate_demand(borrowers_ids))
                 self.make_loan(loan_amount, bank_id, counterparty_id)
         print
 
-    def aggregate_demand(self, borrowers_indices):
+    def aggregate_demand(self, borrowers_ids):
         """
         Calculates borrowing demand of borrowers referred to in the given list (references as indices of self.banks).
         :rtype: float
         """
         demand_per_bank = []
-        for borrower_index in borrowers_indices:
-            demand_per_bank.append(self.banks[borrower_index].borrowing_demand)
+        for borrower_id in borrowers_ids:
+            demand_per_bank.append(self.id_to_bank[borrower_id].borrowing_demand)
         return sum(demand_per_bank)
 
     def make_loan(self, amount, party_id, counterparty_id):

@@ -262,6 +262,9 @@ class Controller(object):
             bank.test()
 
     def check_bank(self, bank):
+        """
+        No lending to self may take place.
+        """
         if bank.bank_id in bank.balance.interbank_lending or bank.bank_id in bank.balance.interbank_borrowing:
             return False
         else:

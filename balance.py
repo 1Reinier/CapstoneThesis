@@ -24,14 +24,24 @@ class BalanceSheet(object):
         self.deposits_fraction = DEFAULT_DEPOSITS_FRACTION
         self.deposits = self.assets * self.deposits_fraction
         self.interbank_borrowing = {}
+        self.liabilities = self.current_liabilities
+        # Equity
         self.equity_fraction = DEFAULT_EQUITY_FRACTION
         self.equity = self.assets * self.equity_fraction
 
-    def change_cash(self, by_amount):
-        self.cash += by_amount
-        self.assets += by_amount
-        self.cash_fraction = self.cash / self.assets
-        self.equity_fraction = self.equity / self.assets
+    @property
+    def current_assets(self):
+        self.assets = self.cash + self.current_amount_of_interbank_lending + self.consumer_loans
+        return self.assets
+
+    @property
+    def current_liabilities(self):
+        self.liabilities = self.deposits + self.current_amount_of_interbank_borrowing
+        return self.liabilities
+
+    @property
+    def current_equity(self):
+        self.equity = self.current_assets - self.current_liabilities
 
     @property
     def current_amount_of_interbank_lending(self):

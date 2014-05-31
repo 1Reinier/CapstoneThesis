@@ -161,64 +161,59 @@ class Controller(object):
             # keeping score:
             self.defaulted_banks += 1.0
 
-            # Workaround for bug:
+            # copies used as iterables in for-loops:
             interbank_lending_backup = copy.deepcopy(bank.balance.interbank_lending)
             interbank_borrowing_backup = copy.deepcopy(bank.balance.interbank_borrowing)
 
             # redeem outstanding loans:
-            retrievable = 0
+            interbank_retrieved = 0.0
             for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                if bank.balance.interbank_lending[counterparty_id] >= counterparty.balance.cash:
-                    retrievable = counterparty.balance.cash
-                    counterparty.balance.cash = 0.0
-                else:
-                    retrievable = bank.balance.interbank_lending[counterparty_id]
-                    counterparty.balance.cash -= retrievable
-                counterparty.balance.interbank_borrowing[bank.bank_id] = 0
-                bank.balance.interbank_lending[counterparty_id] = 0
-            money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + retrievable
+                loan_size = bank.balance.interbank_lending[counterparty_id]
+                retrieved = max(counterparty.balance.cash, loan_size)
+                counterparty.balance.cash -= retrieved
+                del counterparty.balance.interbank_borrowing[bank.bank_id]
+                del bank.balance.interbank_lending[counterparty_id]
+                counterparty.balance.recalculate_current_equity()
+                interbank_retrieved += retrieved
+
+            # calculate outstanding money retrieved, for paying back depositors and interbank debt:
+            money_retrieved = (consumer_loan_recovery_fraction * bank.balance.consumer_loans) + interbank_retrieved
             money_left = money_retrieved + bank.balance.cash - bank.balance.deposits
-            if money_left > 0:
-                bank.balance.cash = money_left
-            else:
-                bank.balance.cash = 0.0
+            bank.balance.cash = max(money_left, 0.0)
             bank.balance.deposits = 0.0
+            bank.balance.recalculate_current_equity()
 
             # default on borrowed money. If money is left after depositors pay-out, creditors are paid:
             if bank.balance.cash > 0.0:
-                return_fraction = 0
-                if bank.balance.current_amount_of_interbank_borrowing != 0:
+                return_fraction = 0.0
+                if bank.balance.current_amount_of_interbank_borrowing != 0.0:
                     # fraction repaid:
                     return_fraction = bank.balance.cash / bank.balance.current_amount_of_interbank_borrowing
                 if return_fraction > 1.0:
                     return_fraction = 1.0
                 for counterparty_id in interbank_borrowing_backup:
-                    loan_size = bank.balance.interbank_borrowing[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
-                    loss = (1.0 - return_fraction) * loan_size
-                    if loss < counterparty.balance.equity:
-                        counterparty.balance.equity -= loss
-                    else:
-                        counterparty.balance.equity = 0.0
+                    loan_size = bank.balance.interbank_borrowing[counterparty_id]
+                    cash_back = return_fraction * loan_size
+                    counterparty.balance.cash += cash_back
                     del counterparty.balance.interbank_lending[bank.bank_id]
                     del bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty.balance.recalculate_current_equity()
+                    bank.balance.recalculate_current_equity()
             else:
                 # default on borrowed money without money left:
                 for counterparty_id in interbank_borrowing_backup:
-                    loss = bank.balance.interbank_borrowing[counterparty_id]
                     counterparty = self.id_to_bank[counterparty_id]
-                    if loss < counterparty.balance.equity:
-                        counterparty.balance.equity -= loss
-                    else:
-                        counterparty.balance.equity = 0.0
                     del counterparty.balance.interbank_lending[bank.bank_id]
                     del bank.balance.interbank_borrowing[counterparty_id]
+                    counterparty.balance.recalculate_current_equity()
+                    bank.balance.recalculate_current_equity()
 
             # check for, and trigger next defaults, if they occur:
             for counterparty_id in interbank_lending_backup:
                 counterparty = self.id_to_bank[counterparty_id]
-                if counterparty.balance.cash <= 0.0:
+                if counterparty.balance.equity <= 0.0:
                     self.go_into_default(counterparty_id)
             for counterparty_id in interbank_borrowing_backup:
                 counterparty = self.id_to_bank[counterparty_id]

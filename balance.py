@@ -29,19 +29,29 @@ class BalanceSheet(object):
         self.equity_fraction = DEFAULT_EQUITY_FRACTION
         self.equity = self.assets * self.equity_fraction
 
+    def recalculate_current_assets(self):
+        self.assets = self.cash + self.current_amount_of_interbank_lending + self.consumer_loans
+
+    def recalculate_current_liabilities(self):
+        self.liabilities = self.deposits + self.current_amount_of_interbank_borrowing
+
+    def recalculate_current_equity(self):
+        self.equity = max(self.current_assets - self.current_liabilities, 0.0)
+
     @property
     def current_assets(self):
-        self.assets = self.cash + self.current_amount_of_interbank_lending + self.consumer_loans
+        self.recalculate_current_assets()
         return self.assets
 
     @property
     def current_liabilities(self):
-        self.liabilities = self.deposits + self.current_amount_of_interbank_borrowing
+        self.recalculate_current_liabilities()
         return self.liabilities
 
     @property
     def current_equity(self):
-        self.equity = self.current_assets - self.current_liabilities
+        self.recalculate_current_equity()
+        return  self.equity
 
     @property
     def current_amount_of_interbank_lending(self):

@@ -11,9 +11,8 @@ class Experiment(object):
     """
     Collects and stores data from the simulation, for later use.
     """
-    def __init__(self, asset_size=True, kappa_value=True, base_simulation_location=PICKLE_PATH):
+    def __init__(self, asset_size=True, base_simulation_location=PICKLE_PATH):
         self.asset_failure_data = {}
-        self.kappa_data = {}
         print 'Starting experiment...'
         if base_simulation_location:
             self.base_simulation = pickle.load(open(base_simulation_location, 'rb'))
@@ -22,8 +21,6 @@ class Experiment(object):
             self.length = len(self.base_bank_id_list)
             self.asset_size_and_default_fraction(self.base_bank_id_list)
             self.export_data_to_csv(self.asset_failure_data)
-        if kappa_value:
-            pass
 
     def asset_size_and_default_fraction(self, bank_id_list):
         for bank_id in bank_id_list:

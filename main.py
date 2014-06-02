@@ -12,7 +12,7 @@ __author__ = "Reinier Maat"
 __date__ = "May 28, 2014"
 __copyright__ = "Copyright (c) 2014, AUC Capstone Project Reinier Maat"
 __license__ = "MIT"
-__version__ = "0.3"
+__version__ = "0.4"
 __email__ = "reinier.maat@student.auc.nl"
 __status__ = "Development"
 
@@ -33,7 +33,7 @@ def main():
     simulation = Controller(import_network=False, export_network=True, build_network=True)
     pickle.dump(simulation, open(PICKLE_PATH, 'w+b'))
     time.sleep(2)  # wait till pickle dump is complete
-    experiment = Experiment(asset_size=True, kappa_value=False)
+    experiment = Experiment(asset_size=True)
     print('Done.')
 
 if __name__ == '__main__':
